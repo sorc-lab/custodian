@@ -1,13 +1,11 @@
-package com.sorclab.custodian;
+package com.sorclab.custodianserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CustodianApplication {
-
+public class CustodianServerApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(CustodianApplication.class, args);
+		SpringApplication.run(CustodianServerApplication.class, args);
 	}
-
 }

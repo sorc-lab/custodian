@@ -179,3 +179,69 @@ my-java-project
     <!-- Add frontend-specific dependencies and configurations here -->
 </project>
 ```
+
+# Timer
+```
+@Service
+public class YourEntityService {
+
+    @Autowired
+    private YourEntityRepository entityRepository;
+
+    public void updateEntityStateBasedOnTimer() {
+        List<YourEntity> entities = entityRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (YourEntity entity : entities) {
+            LocalDateTime expirationDate = entity.getCreatedAt().plusDays(entity.getTimerDuration());
+
+            if (now.isAfter(expirationDate)) {
+                // Update entity state as needed
+            }
+        }
+    }
+
+    public void resetTimer(Long entityId, int newTimerDuration) {
+        Optional<YourEntity> optionalEntity = entityRepository.findById(entityId);
+
+        if (optionalEntity.isPresent()) {
+            YourEntity entity = optionalEntity.get();
+            entity.setTimerDuration(newTimerDuration);
+            // Update other fields as needed
+            entityRepository.save(entity);
+        } else {
+            // Handle entity not found
+        }
+    }
+}
+```
+
+```
+@Service
+public class SchedulerService {
+
+    @Autowired
+    private YourEntityService entityService;
+
+    @Scheduled(fixedRate = 24 * 60 * 60 * 1000) // Run every 24 hours
+    public void updateEntityStates() {
+        entityService.updateEntityStateBasedOnTimer();
+    }
+}
+```
+
+```
+@RestController
+@RequestMapping("/api/your-entity")
+public class YourEntityController {
+
+    @Autowired
+    private YourEntityService entityService;
+
+    @PostMapping("/{entityId}/reset-timer")
+    public ResponseEntity<String> resetTimer(@PathVariable Long entityId, @RequestParam int newTimerDuration) {
+        entityService.resetTimer(entityId, newTimerDuration);
+        return ResponseEntity.ok("Timer reset successfully");
+    }
+}
+```

@@ -1,0 +1,8 @@
+spring:
+  main:
+    allow-circular-references: true
+    web-application-type: none
+
+  output:
+    ansi:
+      enabled: always
