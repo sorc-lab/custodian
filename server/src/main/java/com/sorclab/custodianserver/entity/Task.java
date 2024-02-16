@@ -1,9 +1,6 @@
 package com.sorclab.custodianserver.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,8 +24,12 @@ public class Task {
     private String description;
 
     private LocalDateTime createdAt;
-    private int timerDuration;
 
-    // TODO: Change to enum
-    private String status;
+    // days until task expires
+    private int timerDurationDays;
+
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status;
+
+    private LocalDateTime expirationDate;
 }

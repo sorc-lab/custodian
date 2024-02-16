@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -13,5 +15,8 @@ public class TaskDTO {
     private Long id;
     private String label;
     private String description;
-    private int timerDuration;
+    private LocalDateTime createdAt;
+    private int timerDurationDays;
+    private LocalDateTime expirationDate;
+    private String status;
 }

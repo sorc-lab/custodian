@@ -2,6 +2,7 @@ package com.sorclab.custodianclient.shell;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sorclab.custodianclient.client.ClientService;
 import com.sorclab.custodianclient.model.TaskDTO;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +16,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ShellCommand {
     private final ClientService clientService;
+    private final ObjectMapper objectMapper;
 
     @ShellMethod(value = "Add a Task")
     public void add(
+            // TODO: Add help = "" values.
             @ShellOption(value = "--label") String label,
             @ShellOption(value = "--description") String description,
             @ShellOption(value = "--timer-duration") int timerDuration)
@@ -25,7 +28,7 @@ public class ShellCommand {
         TaskDTO taskDTO = TaskDTO.builder()
                 .label(label)
                 .description(description)
-                .timerDuration(timerDuration)
+                .timerDurationDays(timerDuration)
                 .build();
 
         clientService.addTask(taskDTO);
@@ -36,17 +39,10 @@ public class ShellCommand {
         List<TaskDTO> tasks = clientService.getTasks();
 
         try {
-            System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(tasks));
+            System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tasks));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-
-        tasks.forEach(task -> {
-            System.out.println(task.getId());
-            System.out.println(task.getLabel());
-            System.out.println(task.getDescription());
-            System.out.println(task.getTimerDuration());
-        });
     }
 
     /*
