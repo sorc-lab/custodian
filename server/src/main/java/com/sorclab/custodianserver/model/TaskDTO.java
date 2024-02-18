@@ -1,4 +1,4 @@
-package com.sorclab.custodianclient.model;
+package com.sorclab.custodianserver.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

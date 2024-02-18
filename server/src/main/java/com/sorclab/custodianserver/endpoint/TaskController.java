@@ -1,6 +1,7 @@
 package com.sorclab.custodianserver.endpoint;
 
 import com.sorclab.custodianserver.entity.Task;
+import com.sorclab.custodianserver.model.TaskDTO;
 import com.sorclab.custodianserver.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,8 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping("/task")
-    public void createTask(@RequestBody Task task) {
-        taskService.createTask(task);
+    public void createTask(@RequestBody TaskDTO taskDTO) {
+        taskService.createTask(taskDTO);
     }
 
     @GetMapping("/task")

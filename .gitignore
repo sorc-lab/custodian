@@ -34,3 +34,6 @@ build/
 
 ### Spring ###
 spring-shell.log
+
+### custodian ###
+custodian_tasks.json

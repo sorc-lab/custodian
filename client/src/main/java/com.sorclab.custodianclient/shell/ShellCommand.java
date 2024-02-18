@@ -2,7 +2,6 @@ package com.sorclab.custodianclient.shell;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sorclab.custodianclient.client.ClientService;
 import com.sorclab.custodianclient.model.TaskDTO;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +19,9 @@ public class ShellCommand {
 
     @ShellMethod(value = "Add a Task")
     public void add(
-            // TODO: Add help = "" values.
-            @ShellOption(value = "--label") String label,
-            @ShellOption(value = "--description") String description,
-            @ShellOption(value = "--timer-duration") int timerDuration)
+            @ShellOption(value = "--label", help = "e.g. --label 'Kitchen'") String label,
+            @ShellOption(value = "--description", help = "e.g. --description 'Mop floors and clean surfaces'") String description,
+            @ShellOption(value = "--timer-duration", help = "Set number of days e.g. --timer-duration 7") int timerDuration)
     {
         TaskDTO taskDTO = TaskDTO.builder()
                 .label(label)
@@ -62,3 +60,31 @@ public class ShellCommand {
     GetTasks will list them out and apply a color to ALL tasks completed and expired/soon to expire
      */
 }
+
+/*
+Next to each item write the date completed and the due date for the task to be repeated.
+ONCE A WEEK
+Upstairs offices surface tops
+Upstairs carpets and stairs vacuumed
+Upstairs bathrooms mopped
+Master bathroom toilet and surfaces
+Upstairs Guest bathroom toilet and surfaces
+Downstairs bathroom toilet and surfaces
+Downstairs carpets vacuumed
+Downstairs kitchen, bathroom and front room entry mopped
+Downstairs kitchen and dining room surface tops
+
+EVERY OTHER WEEK
+Upstairs window sills
+Upstairs bathrooms mopped
+Master bathroom tub, shower & Windex mirror
+Downstairs bathroom Windex mirror
+Downstairs window sills
+Upstairs Guest bathroom tub, shower & Windex mirror
+
+ONCE A MONTH
+Master bed changed
+Mae’s bed changed
+Master bathroom mats changed
+Guest bathroom mats changed
+ */
