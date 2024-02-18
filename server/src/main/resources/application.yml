@@ -1,4 +1,7 @@
 spring:
+  output:
+    ansi:
+      enabled: always
   h2:
     # login via localhost:8080/h2-console
     console:

@@ -10,11 +10,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -83,19 +85,20 @@ public class TaskService {
             return;
         }
 
-        String tasksStr;
-        try {
-            tasksStr = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tasks);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+
 
         // TODO: Do not use seconds. Incremental backups vs. archival.
         //      Store file checksum in cache or singleton class. Only write
         //      if new data AND not empty. MUST load in file on startup
         //      before cron task!
+        // TODO: Fix json formatting. It's wrapping json array in quotes and adding Windows line
+        //      ending chars
         try {
-            objectMapper.writeValue(new File(TASKS_FILESYSTEM_BK), tasksStr);
+            File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("custodian_tasks.json")).getFile());
+            //File file = ResourceUtils.getFile("classpath:custodian_tasks.json");
+
+            // TODO: This just doesn't do anything to the file if it has data apparently?
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, tasks);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

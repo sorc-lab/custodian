@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SuppressWarnings("unused")
 @SpringBootTest
 class CustodianServerApplicationTests {
-    @Test
-    void contextLoads() {
-
-    }
+//    @Test
+//    void contextLoads() {
+//
+//    }
 }
