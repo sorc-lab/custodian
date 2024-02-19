@@ -44,7 +44,6 @@ public class TaskService {
         LocalDateTime expirationDate = currentTime.plusSeconds(secondsUntilExpiration);
 
         // TODO: validate the number of days. max should be 30?
-        // TODO: Add unique constraint on label. Do not update on existing, throw error.
 
         Task newTask = Task.builder()
                 .label(taskDTO.getLabel())

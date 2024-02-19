@@ -81,31 +81,3 @@ public class ShellCommand {
     GetTasks will list them out and apply a color to ALL tasks completed and expired/soon to expire
      */
 }
-
-/*
-Next to each item write the date completed and the due date for the task to be repeated.
-ONCE A WEEK
-Upstairs offices surface tops
-Upstairs carpets and stairs vacuumed
-Upstairs bathrooms mopped
-Master bathroom toilet and surfaces
-Upstairs Guest bathroom toilet and surfaces
-Downstairs bathroom toilet and surfaces
-Downstairs carpets vacuumed
-Downstairs kitchen, bathroom and front room entry mopped
-Downstairs kitchen and dining room surface tops
-
-EVERY OTHER WEEK
-Upstairs window sills
-Upstairs bathrooms mopped
-Master bathroom tub, shower & Windex mirror
-Downstairs bathroom Windex mirror
-Downstairs window sills
-Upstairs Guest bathroom tub, shower & Windex mirror
-
-ONCE A MONTH
-Master bed changed
-Mae’s bed changed
-Master bathroom mats changed
-Guest bathroom mats changed
- */

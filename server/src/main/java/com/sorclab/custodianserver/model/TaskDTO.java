@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 // TODO: Check for usages once done and slim it down.
+//  NOTE: Need to evaluate the client side DTO first to see what it needs from this DTO.
 
 @Data
 @Builder

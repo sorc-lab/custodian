@@ -18,18 +18,16 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, length = 25)
     private String label;
 
-    // TODO: Stores as comma-delimited String. Can I avoid VARCHAR(32000) schema?
+    @Column(length = 80)
     private String description;
 
     private LocalDateTime createdAt;
-
-    // days until task expires
-    private int timerDurationDays;
+    private LocalDateTime expirationDate;
+    private int timerDurationDays; // days until task expires
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
-
-    private LocalDateTime expirationDate;
 }
