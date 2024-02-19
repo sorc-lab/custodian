@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class SchedulerService {
     private final TaskService taskService;
 
-    @SuppressWarnings("unused")
     @Scheduled(initialDelay = 12 * 60 * 60 * 1000, fixedRate = 12 * 60 * 60 * 1000)
     public void updateTasksAndSave() {
         log.info("Attempting to update tasks and save to filesystem...");

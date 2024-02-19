@@ -2,6 +2,7 @@ package com.sorclab.custodianclient.client;
 
 import com.sorclab.custodianclient.model.TaskDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,9 +13,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-// TODO: All REST calls need to have a response handler that returns to the client proper errors
-
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ClientService {
     private final RestTemplate restTemplate;
@@ -24,7 +24,7 @@ public class ClientService {
                 "http://localhost:8080/task",
                 taskDTO,
                 Object.class
-        );
+            );
     }
 
     public List<TaskDTO> getTasks() {
