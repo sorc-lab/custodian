@@ -22,8 +22,8 @@ public class ClientDisplay {
 
     public void displayTasks(List<TaskDTO> tasks) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(String.format("%-5s%-25s%-50s%n", "ID", "LABEL", "DESCRIPTION"));
-        stringBuilder.append(String.format("%-5s%-25s%-50s%n", "--", "-----", "-----------"));
+        stringBuilder.append(String.format("%-5s%-25s%-80s%-15s%n", "ID", "LABEL", "DESCRIPTION", "TIMER"));
+        stringBuilder.append(String.format("%-5s%-25s%-80s%-15s%n", "--", "-----", "-----------", "-----"));
 
         tasks.forEach(task -> {
 
@@ -36,11 +36,12 @@ public class ClientDisplay {
                 color = ANSI_GREEN;
             }
 
-            stringBuilder.append(String.format("%s%-5d%-25s%-50s%s%n",
+            stringBuilder.append(String.format("%s%-5d%-25s%-80s%-15s%s%n",
                     color,
                     task.getId(),
                     task.getLabel(),
                     task.getDescription(),
+                    "every " + task.getTimerDurationDays() + " days",
                     ANSI_RESET));
         });
 
