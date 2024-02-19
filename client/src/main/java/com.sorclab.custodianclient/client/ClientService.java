@@ -38,6 +38,19 @@ public class ClientService {
         return response.getBody();
     }
 
+    public TaskDTO getTaskById(long id) {
+        ResponseEntity<TaskDTO> response = restTemplate.getForEntity(
+                "http://localhost:8080/task/" + id,
+                TaskDTO.class
+        );
+
+        return response.getBody();
+    }
+
+//    public TaskDTO getTaskByLabel(String label) {
+//
+//    }
+
     public void deleteTaskById(long id) {
         restTemplate.delete("http://localhost:8080/task/" + id);
     }

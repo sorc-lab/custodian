@@ -37,6 +37,22 @@ public class ShellCommand {
         clientDisplay.displayTasks(clientService.getTasks());
     }
 
+    @ShellMethod(value = "View a Task")
+    public void view(
+            @ShellOption(value = "--id", defaultValue = ShellOption.NULL,help = "e.g. --id 10") Long id,
+            @ShellOption(value = "--label", defaultValue = ShellOption.NULL,help = "e.g. --label 'Kitchen'") String label)
+    {
+        if (id != null) {
+            clientDisplay.displayTask(clientService.getTaskById(id));
+            return;
+        }
+
+        // TODO: Add viewByLabel
+
+        log.error("View MUST provide an id or label!");
+
+    }
+
     @ShellMethod(value = "Delete Task by id or label")
     public void delete(
             @ShellOption(value = "--id", defaultValue = ShellOption.NULL, help = "e.g. --id 10") Long id,
@@ -56,14 +72,10 @@ public class ShellCommand {
     }
 
     /*
-        - get tasks -> prints all tasks and their color-coded status in brief
         - get task -> prints an individual tasks and all the details
         - edit task -> edit tasks label, desc, and timer, but not status, that is driven by cron
-        - add task -> adds a task
-        - remove task -> removes a task
         - complete task -> marks a task completed, which triggers the cron to reset based on timer
         - get alerts/notifications (needs to also print these on startup somehow)
-        -
      */
 
     /* Alert system

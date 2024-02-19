@@ -7,9 +7,11 @@ import com.sorclab.custodianserver.entity.Task;
 import com.sorclab.custodianserver.entity.TaskStatus;
 import com.sorclab.custodianserver.model.TaskDTO;
 import com.sorclab.custodianserver.repo.TaskRepo;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -111,6 +113,10 @@ public class TaskService {
 
     public List<Task> getTasks() {
         return taskRepo.findAll();
+    }
+
+    public Task getTask(long id) {
+        return taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Transactional

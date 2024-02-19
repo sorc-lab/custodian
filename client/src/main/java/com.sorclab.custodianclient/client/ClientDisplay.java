@@ -47,4 +47,14 @@ public class ClientDisplay {
 
         System.out.println(stringBuilder);
     }
+
+    public void displayTask(TaskDTO task) {
+        System.out.println("ID               : " + task.getId());
+        System.out.println("Label            : " + task.getLabel());
+        System.out.println("Description      : " + task.getDescription());
+        System.out.println("createdAt        : " + task.getCreatedAt());
+        System.out.println("timerDurationDays: " + task.getTimerDurationDays());
+        System.out.println("expirationDate   : " + task.getExpirationDate());
+        System.out.println("status           : " + task.getStatus());
+    }
 }

@@ -23,6 +23,11 @@ public class TaskController {
         return taskService.getTasks();
     }
 
+    @GetMapping("/task/{id}")
+    public Task getTask(@PathVariable long id) {
+        return taskService.getTask(id);
+    }
+
     @DeleteMapping("/task/{id}")
     public void deleteTaskById(@PathVariable long id) {
         taskService.deleteTaskById(id);
