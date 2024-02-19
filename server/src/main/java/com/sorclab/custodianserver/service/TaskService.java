@@ -20,6 +20,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/** H2 in-memory Database and Filesystem JSON
+ * - DB init routine called to pull in JSON data from filesystem on startup
+ * - Read methods directly from in-memory DB
+ * - Write methods write to Filesystem AND in-memory DB
+ * - Scheduled routines update Task status & sync current in-memory DB data to Filesystem
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -50,8 +56,10 @@ public class TaskService {
                 .build();
 
         taskRepo.save(newTask);
+        saveTasksToFilesystem();
     }
 
+    // method only called via db init, so not need to do filesystem sync here, currently
     @Transactional
     public void createTasks(List<TaskDTO> taskDTOs) {
         List<Task> newTasks = new ArrayList<>();
@@ -79,11 +87,19 @@ public class TaskService {
     }
 
     public void deleteTaskById(long id) {
+        Task task = taskRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("No Task found for id: " + id));
 
+        taskRepo.delete(task);
+        saveTasksToFilesystem();
     }
 
     public void deleteTaskByLabel(String label) {
+        Task task = taskRepo.findByLabel(label)
+                .orElseThrow(() -> new RuntimeException("No task found for label: " + label));
 
+        taskRepo.delete(task);
+        saveTasksToFilesystem();
     }
 
     public void completeTaskById(long id) {
@@ -98,18 +114,11 @@ public class TaskService {
         return taskRepo.findAll();
     }
 
-    // TODO: Can possibly break up this method. Investigate.
-    // TODO: Need check to make sure DB has entities before writing files. Also do a checksum. Don't write new file
-    //      every time?
     @Transactional
     public void saveTasksToFilesystem() {
-        updateAllTaskStatus(); // TODO: This needs to be carefully tested.
+        updateAllTaskStatus();
 
         List<Task> tasks = taskRepo.findAll();
-        if (tasks.isEmpty()) {
-            log.info("Skipping filesystem save. No Tasks found in memory.");
-            return;
-        }
 
         String tasksJson;
         try {

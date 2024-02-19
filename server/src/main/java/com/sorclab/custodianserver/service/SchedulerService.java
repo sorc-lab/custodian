@@ -11,12 +11,8 @@ import org.springframework.stereotype.Service;
 public class SchedulerService {
     private final TaskService taskService;
 
-    // TODO: Consider bumping this up significantly to like once an hour or every 12 hours?
-    // NOTE: This can also be run during other REST calls to the system, but maybe unnecessary.
     @SuppressWarnings("unused")
-    //@Scheduled(fixedRate = 60 * 1000) // Run every 60 seconds
-    //@Scheduled(fixedRate = 5 * 60 * 1000) // Run every 5 minutes
-    @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // Run every 12 hours
+    @Scheduled(initialDelay = 12 * 60 * 60 * 1000, fixedRate = 12 * 60 * 60 * 1000)
     public void updateTasksAndSave() {
         log.info("Attempting to update tasks and save to filesystem...");
         taskService.saveTasksToFilesystem();

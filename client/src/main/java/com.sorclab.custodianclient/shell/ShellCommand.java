@@ -5,13 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorclab.custodianclient.client.ClientService;
 import com.sorclab.custodianclient.model.TaskDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
 @ShellComponent
+@Slf4j
 @RequiredArgsConstructor
 public class ShellCommand {
     private final ClientService clientService;
@@ -41,6 +44,24 @@ public class ShellCommand {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @ShellMethod(value = "Delete Task by id or label")
+    public void delete(
+            @ShellOption(value = "--id", defaultValue = ShellOption.NULL, help = "e.g. --id 10") Long id,
+            @ShellOption(value = "--label", defaultValue = ShellOption.NULL, help = "e.g. --label 'Kitchen'") String label)
+    {
+        if (id != null) {
+            clientService.deleteTaskById(id);
+            return;
+        }
+
+        if (StringUtils.hasText(label)) {
+            clientService.deleteTaskByLabel(label);
+            return;
+        }
+
+        log.error("Delete MUST provide an id or label!");
     }
 
     /*

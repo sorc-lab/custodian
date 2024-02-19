@@ -12,6 +12,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+// TODO: All REST calls need to have a response handler that returns to the client proper errors
+
 @Service
 @RequiredArgsConstructor
 public class ClientService {
@@ -34,5 +36,13 @@ public class ClientService {
         );
 
         return response.getBody();
+    }
+
+    public void deleteTaskById(long id) {
+        restTemplate.delete("http://localhost:8080/task/" + id);
+    }
+
+    public void deleteTaskByLabel(String label) {
+        restTemplate.delete("http://localhost:8080/task?label=" + label);
     }
 }
