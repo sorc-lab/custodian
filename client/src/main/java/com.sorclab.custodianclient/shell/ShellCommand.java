@@ -1,7 +1,6 @@
 package com.sorclab.custodianclient.shell;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sorclab.custodianclient.client.ClientDisplay;
 import com.sorclab.custodianclient.client.ClientService;
 import com.sorclab.custodianclient.model.TaskDTO;
 import lombok.RequiredArgsConstructor;
@@ -11,14 +10,12 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 @ShellComponent
 @Slf4j
 @RequiredArgsConstructor
 public class ShellCommand {
     private final ClientService clientService;
-    private final ObjectMapper objectMapper;
+    private final ClientDisplay clientDisplay;
 
     @ShellMethod(value = "Add a Task")
     public void add(
@@ -37,13 +34,7 @@ public class ShellCommand {
 
     @ShellMethod(value = "List Tasks")
     public void list() {
-        List<TaskDTO> tasks = clientService.getTasks();
-
-        try {
-            System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tasks));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        clientDisplay.displayTasks(clientService.getTasks());
     }
 
     @ShellMethod(value = "Delete Task by id or label")
@@ -65,7 +56,7 @@ public class ShellCommand {
     }
 
     /*
-        - get tasks -> prints all tasks and their color-coded status in brief, no descriptions
+        - get tasks -> prints all tasks and their color-coded status in brief
         - get task -> prints an individual tasks and all the details
         - edit task -> edit tasks label, desc, and timer, but not status, that is driven by cron
         - add task -> adds a task
