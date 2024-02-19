@@ -2,6 +2,7 @@ package com.sorclab.custodianserver.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sorclab.custodianserver.Util.TasksFileUtil;
 import com.sorclab.custodianserver.entity.Task;
 import com.sorclab.custodianserver.entity.TaskStatus;
 import com.sorclab.custodianserver.model.TaskDTO;
@@ -10,28 +11,27 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TaskService {
     private static final int SECONDS_IN_24_HOURS = 86400;
-    private static final String TASKS_FILESYSTEM_BK = "../custodian_tasks.json";
 
     private final TaskRepo taskRepo;
     private final ObjectMapper objectMapper;
+    private final TasksFileUtil tasksFileUtil;
 
     @Transactional
     public void createTask(TaskDTO taskDTO) {
-        System.out.println("description" + taskDTO.getDescription());
-
         LocalDateTime currentTime = LocalDateTime.now();
 
         int secondsUntilExpiration = taskDTO.getTimerDurationDays() * SECONDS_IN_24_HOURS;
@@ -50,6 +50,32 @@ public class TaskService {
                 .build();
 
         taskRepo.save(newTask);
+    }
+
+    @Transactional
+    public void createTasks(List<TaskDTO> taskDTOs) {
+        List<Task> newTasks = new ArrayList<>();
+
+        // TODO: Promote to streams if possible
+        taskDTOs.forEach(taskDTO -> {
+            // TODO: Consider making private func for this. Duplicate code, see createTask.
+            LocalDateTime currentTime = LocalDateTime.now();
+            int secondsUntilExpiration = taskDTO.getTimerDurationDays() * SECONDS_IN_24_HOURS;
+            LocalDateTime expirationDate = currentTime.plusSeconds(secondsUntilExpiration);
+
+            Task newTask = Task.builder()
+                    .label(taskDTO.getLabel())
+                    .description(taskDTO.getDescription())
+                    .createdAt(LocalDateTime.now())
+                    .timerDurationDays(taskDTO.getTimerDurationDays())
+                    .expirationDate(expirationDate)
+                    .status(TaskStatus.NEW)
+                    .build();
+
+            newTasks.add(newTask);
+        });
+
+        taskRepo.saveAll(newTasks);
     }
 
     public void deleteTaskById(long id) {
@@ -85,28 +111,25 @@ public class TaskService {
             return;
         }
 
-
-
-        // TODO: Do not use seconds. Incremental backups vs. archival.
-        //      Store file checksum in cache or singleton class. Only write
-        //      if new data AND not empty. MUST load in file on startup
-        //      before cron task!
-        // TODO: Fix json formatting. It's wrapping json array in quotes and adding Windows line
-        //      ending chars
+        String tasksJson;
         try {
-            File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("custodian_tasks.json")).getFile());
-            //File file = ResourceUtils.getFile("classpath:custodian_tasks.json");
-
-            // TODO: This just doesn't do anything to the file if it has data apparently?
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, tasks);
-        } catch (IOException e) {
+            tasksJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tasks);
+        } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+
+        String tasksFilePath = tasksFileUtil.getTasksFile().getPath();
+
+        try {
+            Files.writeString(Path.of(tasksFilePath), tasksJson, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write to " + tasksFilePath, e);
+        }
+
+        log.info("Filesystem save succeeded!");
     }
 
-    // TODO: On app load, need to read from DB file and load into H2 in-memory DB
-
-    // called every 5mins via cron task and before writing in-memory data to filesystem
+    // TODO: Consider moving this into its own Schedule vs. hooking this into the save to FS.
     @Transactional
     private void updateAllTaskStatus() {
         LocalDateTime currentTime = LocalDateTime.now();

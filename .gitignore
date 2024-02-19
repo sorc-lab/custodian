@@ -36,4 +36,4 @@ build/
 spring-shell.log
 
 ### custodian ###
-server/src/main/resources/custodian_tasks.json
+server/data
