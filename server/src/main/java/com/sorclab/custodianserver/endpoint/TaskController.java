@@ -28,6 +28,11 @@ public class TaskController {
         return taskService.getTask(id);
     }
 
+    @PutMapping("/task/{id}")
+    public void completeTaskById(@PathVariable long id) {
+        taskService.completeTaskById(id);
+    }
+
     @DeleteMapping("/task/{id}")
     public void deleteTaskById(@PathVariable long id) {
         taskService.deleteTaskById(id);

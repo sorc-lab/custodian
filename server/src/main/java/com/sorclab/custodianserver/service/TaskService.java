@@ -87,6 +87,19 @@ public class TaskService {
         taskRepo.saveAll(newTasks);
     }
 
+    @Transactional
+    public void completeTaskById(long id) {
+        Task task = taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
+        task.setStatus(TaskStatus.COMPLETE);
+
+        taskRepo.save(task);
+        saveTasksToFilesystem();
+    }
+
+    public void completeTaskByLabel(String label) {
+        // marks task complete and automatically triggers a scan to update ALL tasks status
+    }
+
     public void deleteTaskById(long id) {
         Task task = taskRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("No Task found for id: " + id));
@@ -101,14 +114,6 @@ public class TaskService {
 
         taskRepo.delete(task);
         saveTasksToFilesystem();
-    }
-
-    public void completeTaskById(long id) {
-        // marks task complete and automatically triggers a scan to update ALL tasks status
-    }
-
-    public void completeTaskByLabel(String label) {
-        // marks task complete and automatically triggers a scan to update ALL tasks status
     }
 
     public List<Task> getTasks() {

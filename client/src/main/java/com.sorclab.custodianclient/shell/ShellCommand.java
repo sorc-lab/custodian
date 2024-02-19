@@ -71,8 +71,22 @@ public class ShellCommand {
         log.error("Delete MUST provide an id or label!");
     }
 
+    @ShellMethod(value = "Complete task by id or label")
+    public void complete(
+            @ShellOption(value = "--id", defaultValue = ShellOption.NULL, help = "e.g. --id 10") Long id,
+            @ShellOption(value = "--label", defaultValue = ShellOption.NULL, help = "e.g. --label 'Kitchen'") String label)
+    {
+        if (id != null) {
+            clientService.completeTaskById(id);
+            return;
+        }
+
+        // TODO: Add complete by label
+
+        log.error("Complete Task MUST provide and id or label!");
+    }
+
     /*
-        - get task -> prints an individual tasks and all the details
         - edit task -> edit tasks label, desc, and timer, but not status, that is driven by cron
         - complete task -> marks a task completed, which triggers the cron to reset based on timer
         - get alerts/notifications (needs to also print these on startup somehow)

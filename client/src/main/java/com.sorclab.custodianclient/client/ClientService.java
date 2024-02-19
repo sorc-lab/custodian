@@ -51,6 +51,10 @@ public class ClientService {
 //
 //    }
 
+    public void completeTaskById(long id) {
+        restTemplate.put("http://localhost:8080/task/" + id, getTaskById(id));
+    }
+
     public void deleteTaskById(long id) {
         restTemplate.delete("http://localhost:8080/task/" + id);
     }
