@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 public class SchedulerService {
     private final TaskService taskService;
 
-    @Scheduled(initialDelay = 12 * 60 * 60 * 1000, fixedRate = 12 * 60 * 60 * 1000)
+    @Scheduled(initialDelay = 30 * 60 * 1000, fixedRate = 30 * 60 * 1000) // every 30mins
+    //@Scheduled(initialDelay = 12 * 60 * 60 * 1000, fixedRate = 12 * 60 * 60 * 1000) // every 12hrs
     public void updateTasksAndSave() {
         log.info("Attempting to update tasks and save to filesystem...");
         taskService.saveTasksToFilesystem();

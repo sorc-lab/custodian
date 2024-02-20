@@ -50,6 +50,7 @@ public class TasksFileUtil {
         List<TaskDTO> tasks;
         try {
             tasks = objectMapper.readValue(tasksFile, new TypeReference<List<TaskDTO>>(){});
+            //System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tasks));
         } catch (IOException e) {
             throw new RuntimeException("Failed to deserialize " + TASKS_FILE_NAME, e);
         }

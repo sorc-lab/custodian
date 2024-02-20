@@ -78,7 +78,7 @@ public class TaskService {
                     .createdAt(LocalDateTime.now())
                     .timerDurationDays(taskDTO.getTimerDurationDays())
                     .expirationDate(expirationDate)
-                    .status(TaskStatus.NEW)
+                    .status(TaskStatus.valueOf(taskDTO.getStatus()))
                     .build();
 
             newTasks.add(newTask);
@@ -148,7 +148,6 @@ public class TaskService {
         log.info("Filesystem save succeeded!");
     }
 
-    // TODO: Consider moving this into its own Schedule vs. hooking this into the save to FS.
     @Transactional
     private void updateAllTaskStatus() {
         LocalDateTime currentTime = LocalDateTime.now();
