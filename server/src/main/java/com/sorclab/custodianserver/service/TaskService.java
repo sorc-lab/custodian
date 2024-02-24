@@ -11,7 +11,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -40,17 +39,24 @@ public class TaskService {
 
     @Transactional
     public void createTask(TaskDTO taskDTO) {
-        LocalDateTime currentTime = LocalDateTime.now();
-
         int secondsUntilExpiration = taskDTO.getTimerDurationDays() * SECONDS_IN_24_HOURS;
-        LocalDateTime expirationDate = currentTime.plusSeconds(secondsUntilExpiration);
+
+        // TODO: Revisit this logic, but good enough for this iteration to test live.
+        LocalDateTime expirationDate = taskDTO.getCreatedAt() != null
+                ? taskDTO.getCreatedAt().plusSeconds(secondsUntilExpiration)
+                : LocalDateTime.now().plusSeconds(secondsUntilExpiration);
 
         // TODO: validate the number of days. max should be 30?
 
         Task newTask = Task.builder()
                 .label(taskDTO.getLabel())
                 .description(taskDTO.getDescription())
-                .createdAt(LocalDateTime.now())
+
+                // TODO: Bug here. This needs to be looked at closer. Update tasks keeps resetting time.
+                // NOTE: If this works, we can use existing time on update, otherwise need new method.
+                // NOTE: Sharing the create method is bad but see if we can use for short term.
+                .createdAt(taskDTO.getCreatedAt() != null ? taskDTO.getCreatedAt() : LocalDateTime.now())
+
                 .timerDurationDays(taskDTO.getTimerDurationDays())
                 .expirationDate(expirationDate)
                 .status(TaskStatus.NEW)
@@ -67,15 +73,22 @@ public class TaskService {
 
         // TODO: Promote to streams if possible
         taskDTOs.forEach(taskDTO -> {
-            // TODO: Consider making private func for this. Duplicate code, see createTask.
-            LocalDateTime currentTime = LocalDateTime.now();
             int secondsUntilExpiration = taskDTO.getTimerDurationDays() * SECONDS_IN_24_HOURS;
-            LocalDateTime expirationDate = currentTime.plusSeconds(secondsUntilExpiration);
+
+            // TODO: Revisit this logic, but good enough for this iteration to test live.
+            LocalDateTime expirationDate = taskDTO.getCreatedAt() != null
+                    ? taskDTO.getCreatedAt().plusSeconds(secondsUntilExpiration)
+                    : LocalDateTime.now().plusSeconds(secondsUntilExpiration);
 
             Task newTask = Task.builder()
                     .label(taskDTO.getLabel())
                     .description(taskDTO.getDescription())
-                    .createdAt(LocalDateTime.now())
+
+                    // TODO: Bug here. This needs to be looked at closer. Update tasks keeps resetting time.
+                    // NOTE: If this works, we can use existing time on update, otherwise need new method.
+                    // NOTE: Sharing the create method is bad but see if we can use for short term.
+                    .createdAt(taskDTO.getCreatedAt() != null ? taskDTO.getCreatedAt() : LocalDateTime.now())
+
                     .timerDurationDays(taskDTO.getTimerDurationDays())
                     .expirationDate(expirationDate)
                     .status(TaskStatus.valueOf(taskDTO.getStatus()))
@@ -91,6 +104,7 @@ public class TaskService {
     public void completeTaskById(long id) {
         Task task = taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
         task.setStatus(TaskStatus.COMPLETE);
+        task.setCreatedAt(LocalDateTime.now()); // TODO: This is wonky but works for now.
 
         taskRepo.save(task);
         saveTasksToFilesystem();
