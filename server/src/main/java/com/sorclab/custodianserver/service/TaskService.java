@@ -85,6 +85,8 @@ public class TaskService {
                     .description(taskDTO.getDescription())
 
                     // TODO: Bug here. This needs to be looked at closer. Update tasks keeps resetting time.
+                    // NOTE: This bug may have been fixed by adding a state update call on app start-up, but the
+                    //  scheduler and file system integration need to be re-designed.
                     // NOTE: If this works, we can use existing time on update, otherwise need new method.
                     // NOTE: Sharing the create method is bad but see if we can use for short term.
                     .createdAt(taskDTO.getCreatedAt() != null ? taskDTO.getCreatedAt() : LocalDateTime.now())
@@ -105,6 +107,7 @@ public class TaskService {
         Task task = taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
         task.setStatus(TaskStatus.COMPLETE);
         task.setCreatedAt(LocalDateTime.now()); // TODO: This is wonky but works for now.
+        task.setExpirationDate(LocalDateTime.now().plusDays(task.getTimerDurationDays()));
 
         taskRepo.save(task);
         saveTasksToFilesystem();

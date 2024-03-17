@@ -25,5 +25,6 @@ public class RepoInitializer implements CommandLineRunner {
         // no need to check if json file exists, will always exist
         List<TaskDTO> tasks = tasksFileUtil.getTasksFromTasksFile();
         taskService.createTasks(tasks);
+        taskService.saveTasksToFilesystem(); // this will update task states.
     }
 }
