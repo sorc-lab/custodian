@@ -25,6 +25,11 @@ public class RepoInitializer implements CommandLineRunner {
         // no need to check if json file exists, will always exist
         List<TaskDTO> tasks = tasksFileUtil.getTasksFromTasksFile();
         taskService.createTasks(tasks);
-        taskService.saveTasksToFilesystem(); // this will update task states.
+
+        // TODO: Removing this from init run for now. We will have an empty in-memory DB, this is wiping filesystem data
+        // NOTE: Try to figure out why this was added.
+        // NOTE: This service method should ONLY be called via scheduler. We DO NOT want to update or mess with
+        //  filesystem data on init run
+        //taskService.saveTasksToFilesystem(); // this will update task states.
     }
 }

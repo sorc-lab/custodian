@@ -145,6 +145,7 @@ public class TaskService {
     public void saveTasksToFilesystem() {
         updateAllTaskStatus();
 
+        // TODO: This will cause filesystem data to be wiped if run via repo init run method due to not having in-memory DB data.
         List<Task> tasks = taskRepo.findAll();
 
         String tasksJson;

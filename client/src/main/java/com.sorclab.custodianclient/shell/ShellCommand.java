@@ -10,6 +10,30 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.util.StringUtils;
 
+/** TODO: Test via this pattern
+     @SpringBootTest(properties = {
+     InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
+     ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false"
+     })
+     public class MyShellControllerTest {
+
+     @Autowired
+     private MyShellController myShellController;
+
+     @Test
+     public void testHelloCommand() {
+     String result = myShellController.hello();
+     assertThat(result).isEqualTo("Hello, world!");
+     }
+
+     @Test
+     public void testGreetCommand() {
+     String result = myShellController.greet("Alice");
+     assertThat(result).isEqualTo("Hello, Alice!");
+     }
+     }
+ */
+
 @ShellComponent
 @Slf4j
 @RequiredArgsConstructor
