@@ -1,5 +1,6 @@
 package com.sorclab.custodianserver;
 
+import com.sorclab.custodianserver.Util.TasksFileUtil;
 import com.sorclab.custodianserver.endpoint.TaskController;
 import com.sorclab.custodianserver.model.TaskDTO;
 import com.sorclab.custodianserver.repo.TaskRepo;
@@ -19,17 +20,17 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CustodianServerApplicationTests {
+    @SuppressWarnings("unused")
     @LocalServerPort
     private int port;
 
-    @Autowired
-    private TaskController taskController;
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @Autowired private TaskController taskController;
+    @Autowired private TestRestTemplate restTemplate;
 
-    @MockBean
-    private TaskRepo taskRepo;
+    @MockBean private TaskRepo taskRepo;
+    @MockBean private TasksFileUtil tasksFileUtil;
 
+    // TODO: Comment out until all happy path unit/integ tests written to not muddy coverage metrics
 //    @Test
 //    void contextLoads() {
 //
@@ -37,9 +38,9 @@ class CustodianServerApplicationTests {
 
     @Test
     public void createTask() {
-//        TaskDTO taskDTO = TaskDTO.builder().build();
-//        String url =  String.format("http://localhost:%d/task", port);
-//
-//        restTemplate.postForEntity(url, taskDTO, String.class);
+        TaskDTO taskDTO = TaskDTO.builder().build();
+        String url = String.format("http://localhost:%d/task", port);
+
+        restTemplate.postForEntity(url, taskDTO, String.class);
     }
 }

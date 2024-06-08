@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 @Component
@@ -56,5 +59,13 @@ public class TasksFileUtil {
         }
 
         return tasks;
+    }
+
+    public void writeTasksToFilesystem(String filePath, String tasksJson) {
+        try {
+            Files.writeString(Path.of(filePath), tasksJson, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write to " + filePath, e);
+        }
     }
 }

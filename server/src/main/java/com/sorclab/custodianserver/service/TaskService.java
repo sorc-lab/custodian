@@ -13,10 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,13 +152,7 @@ public class TaskService {
         }
 
         String tasksFilePath = tasksFileUtil.getTasksFile().getPath();
-
-        try {
-            Files.writeString(Path.of(tasksFilePath), tasksJson, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write to " + tasksFilePath, e);
-        }
-
+        tasksFileUtil.writeTasksToFilesystem(tasksFilePath, tasksJson);
         log.info("Filesystem save succeeded!");
     }
 
