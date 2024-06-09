@@ -1,7 +1,5 @@
 package com.sorclab.custodianserver;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorclab.custodianserver.Util.TasksFileUtil;
 import com.sorclab.custodianserver.endpoint.TaskController;
 import com.sorclab.custodianserver.entity.Task;
@@ -17,11 +15,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -82,6 +85,62 @@ class CustodianServerApplicationTests {
         verifyExpirationDateCalc(taskArgCaptor.getValue().getExpirationDate(), taskArgCaptor.getValue().getCreatedAt(), taskDTO.getTimerDurationDays());
         assertThat(taskArgCaptor.getValue().getTimerDurationDays()).isEqualTo(7);
         assertThat(taskArgCaptor.getValue().getStatus()).isEqualTo(TaskStatus.NEW);
+    }
+
+    @Test
+    public void getTasks() {
+        when(taskRepo.findAll()).thenReturn(List.of(Task.builder().build()));
+
+        ResponseEntity<List<Task>> tasks = restTemplate.exchange(
+                String.format("http://localhost:%d/task", port),
+                HttpMethod.GET,
+                new HttpEntity<>(new HttpHeaders()),
+                new ParameterizedTypeReference<List<Task>>(){}
+        );
+
+        assertThat(tasks.getBody()).isEqualTo(List.of(Task.builder().build()));
+    }
+
+    @Test
+    public void getTask() {
+        when(taskRepo.findById(1L)).thenReturn(Optional.of(Task.builder().build()));
+
+        ResponseEntity<Task> task = restTemplate.exchange(
+                String.format("http://localhost:%d/task/%d", port, 1L),
+                HttpMethod.GET,
+                new HttpEntity<>(new HttpHeaders()),
+                Task.class
+        );
+
+        assertThat(task.getBody()).isEqualTo(Task.builder().build());
+    }
+
+    /* TEST BEHAVIORS
+        - find Task by id
+        - set status to COMPLETE
+        - reset the createdAt time to LocalDateTime.now(). This effectively re-creates it as new.
+        - set exp date tp NOW plus the Tasks already set timer duration in days.
+        - persist the updated Task to in-memory H2 DB
+        - Run an update process on all Tasks in DB to set to expired if true
+        - Reads all Tasks in in-memory H2 DB and overwrites all Tasks in filesystem json file.
+     */
+    @Test
+    public void completeTaskById() {
+        Task expectedTask = Task.builder()
+                .status(TaskStatus.NEW)
+                .createdAt(LocalDateTime.now().minusYears(1)) // verify plus 1 year?
+                // TODO: Left off here. Need to flesh out the rest of test but will fall short, similar to createTask unit/integ test
+                //.expirationDate()
+                .build();
+
+        when(taskRepo.findById(1L)).thenReturn(Optional.of(Task.builder().build()));
+
+        restTemplate.exchange(
+                String.format("http://localhost:%d/task/%d", port, 1L),
+                HttpMethod.PUT,
+                new HttpEntity<>(new HttpHeaders()),
+                Object.class
+        );
     }
 
     // takes calculated expiration date from createTask method and compares to correct calculation
