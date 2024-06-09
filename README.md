@@ -30,34 +30,33 @@ $ mvn spring-boot:run
 # API Notes
 ```
 /* --- CREATE TASK ----------------------------------------------------
-1. get task timer duration via getTimerDurationDays * 24hrs in
-seconds. Might consider putting this in a util? Unit test this calc.
+1. get task timer (convert from input DTO) duration via getTimerDurationDays * 24hrs in
+    seconds. Might consider putting this in a util? Unit test this calc.
 2. SET expiration of the task
-IF Task.getCreatedAt is not null, ie it got set
-store expiration as date created in SECONDS
-ELSE
-set creation time to NOW in seconds
+    IF Task.getCreatedAt is not null, ie it got set
+        store expiration as date created in SECONDS
+    ELSE
+        set creation time to NOW in seconds
 3. Create the new task object
-- set label via input label
-- set the description via input
-- set createdAt if not already set. again if not set already, set to NOW in seconds
-- set the timer duration based on input DTO
-- set status hardcoded to NEW for all new created items
+    - set label via input label
+    - set the description via input
+    - set createdAt if not already set. again if not set already, set to NOW in seconds
+    - set the timer duration based on input DTO
+    - set status hardcoded to NEW for all new created items
 4. save the Task via DAL repo interface
 5. save the task to filesystem
-- TODO: Fill this out. a lot goes on in here.
--> Update all task status. routine for when any new taks is created, it updates ALL other tasks.
-* get current time
-* get ALL tasks in DATABASE (important)
-* loops tasks
--> get expiration date for task in list
--> check IF current time is equal to expiration date OR curr time is after exp date
--> IF expired, sets status to EXPIRED and saves the task to repo with new status.
--> After updating ALL tasks status to expired if needed, proceeds on to process.
--> Again, it finds ALL tasks. Note, this happens twice now for all task creation. lookup twice.
--> Takes all tasks and converts their Java objects to one large json string.
--> Uses file util to make file path to json file.
--> Uses file util to write the json file to disk.
+    -> Update all task status. routine for when any new taks is created, it updates ALL other tasks.
+        * get current time
+        * get ALL tasks in DATABASE (important)
+        * loops tasks
+    -> get expiration date for task in list
+    -> check IF current time is equal to expiration date OR curr time is after exp date
+    -> IF expired, sets status to EXPIRED and saves the task to repo with new status.
+    -> After updating ALL tasks status to expired if needed, proceeds on to process.
+    -> Again, it finds ALL tasks. Note, this happens twice now for all task creation. lookup twice.
+    -> Takes all tasks and converts their Java objects to one large json string.
+    -> Uses file util to make file path to json file.
+    -> Uses file util to write the json file to disk.
 
 // NOTES: Weird things found so far:
 //  - Sets expiration based on if createdAt already set? How would it already be set?

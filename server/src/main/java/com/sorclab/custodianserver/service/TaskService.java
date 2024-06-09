@@ -58,6 +58,7 @@ public class TaskService {
                 .status(TaskStatus.NEW)
                 .build();
 
+        // TODO: Move this save so that we just do ONE findAll and ONE write!
         taskRepo.save(newTask);
         saveTasksToFilesystem();
     }
