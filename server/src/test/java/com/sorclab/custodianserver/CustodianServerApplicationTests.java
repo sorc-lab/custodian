@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,30 +118,77 @@ class CustodianServerApplicationTests {
 
     /* TEST BEHAVIORS
         - find Task by id
+            COVERED
         - set status to COMPLETE
+            COVERED
         - reset the createdAt time to LocalDateTime.now(). This effectively re-creates it as new.
-        - set exp date tp NOW plus the Tasks already set timer duration in days.
+            COVERED
+        - set exp date to NOW plus the Tasks already set timer duration in days.
+            COVERED
         - persist the updated Task to in-memory H2 DB
+            COVERED
         - Run an update process on all Tasks in DB to set to expired if true
+            NOT COVERED
         - Reads all Tasks in in-memory H2 DB and overwrites all Tasks in filesystem json file.
+            NOTE COVERED
      */
     @Test
     public void completeTaskById() {
-        Task expectedTask = Task.builder()
-                .status(TaskStatus.NEW)
-                .createdAt(LocalDateTime.now().minusYears(1)) // verify plus 1 year?
-                // TODO: Left off here. Need to flesh out the rest of test but will fall short, similar to createTask unit/integ test
-                //.expirationDate()
+        Task task = Task.builder()
+                .id(1L)
+                .label("test-label")
+                .description("test-description")
+                .createdAt(LocalDateTime.of(2024, 1, 1, 1, 1))
+                .expirationDate(LocalDateTime.of(2024, 1, 8, 1, 1))
+                .timerDurationDays(7)
+                .status(TaskStatus.COMPLETE)
                 .build();
 
-        when(taskRepo.findById(1L)).thenReturn(Optional.of(Task.builder().build()));
+        when(taskRepo.findById(1L)).thenReturn(Optional.of(task));
 
         restTemplate.exchange(
                 String.format("http://localhost:%d/task/%d", port, 1L),
                 HttpMethod.PUT,
                 new HttpEntity<>(new HttpHeaders()),
-                Object.class
+                String.class
         );
+
+        verify(taskRepo).save(taskArgCaptor.capture());
+        assertThat(taskArgCaptor.getValue().getId()).isEqualTo(1L);
+        assertThat(taskArgCaptor.getValue().getLabel()).isEqualTo("test-label");
+        assertThat(taskArgCaptor.getValue().getDescription()).isEqualTo("test-description");
+        verifyCompleteTaskCreatedAt(taskArgCaptor.getValue().getCreatedAt());
+        verifyCompleteTaskExpirationDate(taskArgCaptor.getValue().getExpirationDate());
+        assertThat(taskArgCaptor.getValue().getTimerDurationDays()).isEqualTo(7);
+        assertThat(taskArgCaptor.getValue().getStatus()).isEqualTo(TaskStatus.COMPLETE);
+    }
+
+    @Test
+    public void deleteTaskById() {
+        when(taskRepo.findById(1L)).thenReturn(Optional.of(Task.builder().id(1L).build()));
+
+        restTemplate.exchange(
+                String.format("http://localhost:%d/task/%d", port, 1L),
+                HttpMethod.DELETE,
+                new HttpEntity<>(new HttpHeaders()),
+                String.class
+        );
+
+        verify(taskRepo).delete(Task.builder().id(1L).build());
+    }
+
+    @Test
+    public void deleteTaskByLabel() {
+        when(taskRepo.findByLabel("test-label")).thenReturn(Optional.of(Task.builder().label("test-label").build()));
+
+        restTemplate.exchange(
+                String.format("http://localhost:%d/task?label=test-label", port),
+                HttpMethod.DELETE,
+                new HttpEntity<>(new HttpHeaders()),
+                String.class
+        );
+
+        verify(taskRepo).delete(Task.builder().label("test-label").build());
     }
 
     // takes calculated expiration date from createTask method and compares to correct calculation
@@ -148,5 +196,15 @@ class CustodianServerApplicationTests {
         int secondsIn24Hours = 86400;
         LocalDateTime expectedExpDate = createdAt.plusSeconds((long) timerDurationDays * secondsIn24Hours);
         assertThat(calculatedExpDate).isEqualTo(expectedExpDate);
+    }
+
+    private void verifyCompleteTaskCreatedAt(LocalDateTime createdAt) {
+        LocalDateTime expectedDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        assertThat(createdAt.truncatedTo(ChronoUnit.DAYS)).isEqualTo(expectedDateTime);
+    }
+
+    private void verifyCompleteTaskExpirationDate(LocalDateTime expirationDate) {
+        LocalDateTime expectedExpDate = LocalDateTime.now().plusDays(7).truncatedTo(ChronoUnit.DAYS);
+        assertThat(expirationDate.truncatedTo(ChronoUnit.DAYS)).isEqualTo(expectedExpDate);
     }
 }
