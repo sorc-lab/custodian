@@ -1,8 +1,8 @@
-package com.sorclab.custodianserver.endpoint;
+package com.sorclab.custodian.endpoint;
 
-import com.sorclab.custodianserver.entity.Task;
-import com.sorclab.custodianserver.model.TaskDTO;
-import com.sorclab.custodianserver.service.TaskService;
+import com.sorclab.custodian.entity.Task;
+import com.sorclab.custodian.model.TaskDTO;
+import com.sorclab.custodian.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

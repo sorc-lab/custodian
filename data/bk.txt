@@ -1,0 +1,25 @@
+ONCE A WEEK
+add --label 'OfficeSurfaces' --description 'Office surfaces' --timer-duration 7
+add --label 'LabSurfaces' --description 'Lab surfaces' --timer-duration 7
+add --label 'UpstairsCarpets' --description 'Upstairs carpets and stairs vacuumed' --timer-duration 7
+add --label 'UpstairsBathMop' --description 'Upstairs bathrooms mopped' --timer-duration 7
+add --label 'MasterBathSurface' --description 'Master bathroom toilet and surfaces' --timer-duration 7
+add --label 'UpGuestBathSurface' --description 'Upstairs Guest bathroom toilet and surfaces' --timer-duration 7
+add --label 'DownBathSurface' --description 'Downstairs bathroom toilet and surfaces' --timer-duration 7
+add --label 'DownCarpets' --description 'Downstairs carpets vacuumed' --timer-duration 7
+add --label 'DownKitchenBathFront' --description 'Downstairs kitchen, bathroom and front room entry mopped' --timer-duration 7
+add --label 'DownKitchenDinSurface' --description 'Downstairs kitchen and dining room surface tops' --timer-duration 7
+
+EVERY OTHER WEEK
+add --label 'UpSills' --description 'Upstairs window sills' --timer-duration 14
+add --label 'UpBathMop' --description 'Upstairs bathrooms mopped' --timer-duration 14
+add --label 'MasterBathDeep' --description 'Master bathroom tub, shower & Windex mirror' --timer-duration 14
+add --label 'DownBathMirror' --description 'Downstairs bathroom Windex mirror' --timer-duration 14
+add --label 'DownSills' --description 'Downstairs window sills' --timer-duration 14
+add --label 'UpGuestBathDeep' --description 'Upstairs Guest bathroom tub, shower & Windex mirror' --timer-duration 14
+
+ONCE A MONTH
+add --label 'MasterBedChange' --description 'Master bed changed' --timer-duration 30
+add --label 'GuestBedChange' --description 'Guest bed changed' --timer-duration 30
+add --label 'MasterBathMats' --description 'Master bathroom mats changed' --timer-duration 30
+add --label 'UpGuestBathMats' --description 'Guest bathroom mats changed' --timer-duration 30

@@ -6,8 +6,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class CustodianServerApplication {
+public class CustodianApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(CustodianServerApplication.class, args);
+		SpringApplication.run(CustodianApplication.class, args);
 	}
 }

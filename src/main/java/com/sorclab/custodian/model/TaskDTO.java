@@ -12,9 +12,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskDTO {
+    private Long id;
     private String label;
     private String description;
     private LocalDateTime createdAt;
     private int timerDurationDays;
+    private LocalDateTime expirationDate;
     private String status;
 }

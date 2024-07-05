@@ -1,4 +1,4 @@
-package com.sorclab.custodianserver.exception;
+package com.sorclab.custodian.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;

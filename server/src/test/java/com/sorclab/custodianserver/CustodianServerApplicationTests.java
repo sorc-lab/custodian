@@ -1,11 +1,11 @@
-package com.sorclab.custodianserver;
+package com.sorclab.custodian;
 
-import com.sorclab.custodianserver.Util.TasksFileUtil;
-import com.sorclab.custodianserver.endpoint.TaskController;
-import com.sorclab.custodianserver.entity.Task;
-import com.sorclab.custodianserver.entity.TaskStatus;
-import com.sorclab.custodianserver.model.TaskDTO;
-import com.sorclab.custodianserver.repo.TaskRepo;
+import com.sorclab.custodian.util.TasksFileUtil;
+import com.sorclab.custodian.endpoint.TaskController;
+import com.sorclab.custodian.entity.Task;
+import com.sorclab.custodian.entity.TaskStatus;
+import com.sorclab.custodian.model.TaskDTO;
+import com.sorclab.custodian.repo.TaskRepo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
