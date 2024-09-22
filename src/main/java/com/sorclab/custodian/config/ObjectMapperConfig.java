@@ -8,6 +8,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 
 import java.text.SimpleDateFormat;
 
+// TODO: Possible we don't need obj mapper conf after removing custom fs db
+
 @Configuration
 public class ObjectMapperConfig {
     @Bean

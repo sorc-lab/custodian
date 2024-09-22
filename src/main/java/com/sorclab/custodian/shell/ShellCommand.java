@@ -1,12 +1,16 @@
 package com.sorclab.custodian.shell;
 
+import com.sorclab.custodian.entity.Task;
 import com.sorclab.custodian.model.TaskDTO;
+import com.sorclab.custodian.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 /** TODO: Test via this pattern
      @SpringBootTest(properties = {
@@ -38,6 +42,7 @@ import org.springframework.util.StringUtils;
 public class ShellCommand {
     private final ShellService shellService;
     private final ShellDisplay shellDisplay;
+    private final TaskService taskService;
 
     @ShellMethod(value = "Add a Task")
     public void add(
@@ -51,12 +56,12 @@ public class ShellCommand {
                 .timerDurationDays(timerDuration)
                 .build();
 
-        shellService.addTask(taskDTO);
+        taskService.createTask(taskDTO);
     }
 
     @ShellMethod(value = "List Tasks")
     public void list() {
-        shellDisplay.displayTasks(shellService.getTasks());
+        shellDisplay.displayTasks(taskService.getTasks());
     }
 
     @ShellMethod(value = "View a Task")
@@ -65,7 +70,7 @@ public class ShellCommand {
             @ShellOption(value = "--label", defaultValue = ShellOption.NULL,help = "e.g. --label 'Kitchen'") String label)
     {
         if (id != null) {
-            shellDisplay.displayTask(shellService.getTaskById(id));
+            shellDisplay.displayTask(taskService.getTask(id));
             return;
         }
 

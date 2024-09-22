@@ -1,12 +1,9 @@
 package com.sorclab.custodian.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorclab.custodian.entity.Task;
 import com.sorclab.custodian.entity.TaskStatus;
 import com.sorclab.custodian.model.TaskDTO;
 import com.sorclab.custodian.repo.TaskRepo;
-//import com.sorclab.custodian.util.TasksFileUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,37 +27,22 @@ public class TaskService {
     private static final int SECONDS_IN_24_HOURS = 86400;
 
     private final TaskRepo taskRepo;
-    private final ObjectMapper objectMapper;
-//    private final TasksFileUtil tasksFileUtil;
 
     @Transactional
     public void createTask(TaskDTO taskDTO) {
         int secondsUntilExpiration = taskDTO.getTimerDurationDays() * SECONDS_IN_24_HOURS;
-
-        // TODO: Revisit this logic, but good enough for this iteration to test live.
-        LocalDateTime expirationDate = taskDTO.getCreatedAt() != null
-                ? taskDTO.getCreatedAt().plusSeconds(secondsUntilExpiration)
-                : LocalDateTime.now().plusSeconds(secondsUntilExpiration);
-
-        // TODO: validate the number of days. max should be 30?
+        LocalDateTime expirationDate = LocalDateTime.now().plusSeconds(secondsUntilExpiration);
 
         Task newTask = Task.builder()
                 .label(taskDTO.getLabel())
                 .description(taskDTO.getDescription())
-
-                // TODO: Bug here. This needs to be looked at closer. Update tasks keeps resetting time.
-                // NOTE: If this works, we can use existing time on update, otherwise need new method.
-                // NOTE: Sharing the create method is bad but see if we can use for short term.
-                .createdAt(taskDTO.getCreatedAt() != null ? taskDTO.getCreatedAt() : LocalDateTime.now())
-
+                .updatedAt(LocalDateTime.now())
                 .timerDurationDays(taskDTO.getTimerDurationDays())
                 .expirationDate(expirationDate)
-                .status(TaskStatus.NEW)
+                .isComplete(false)
                 .build();
 
-        // TODO: Move this save so that we just do ONE findAll and ONE write!
         taskRepo.save(newTask);
-//        saveTasksToFilesystem();
     }
 
     // method only called via db init, so not need to do filesystem sync here, currently
@@ -107,7 +89,6 @@ public class TaskService {
         task.setExpirationDate(LocalDateTime.now().plusDays(task.getTimerDurationDays()));
 
         taskRepo.save(task);
-//        saveTasksToFilesystem();
     }
 
     public void completeTaskByLabel(String label) {
@@ -119,7 +100,6 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("No Task found for id: " + id));
 
         taskRepo.delete(task);
-//        saveTasksToFilesystem();
     }
 
     public void deleteTaskByLabel(String label) {
@@ -127,7 +107,6 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("No task found for label: " + label));
 
         taskRepo.delete(task);
-//        saveTasksToFilesystem();
     }
 
     public List<Task> getTasks() {
@@ -136,41 +115,5 @@ public class TaskService {
 
     public Task getTask(long id) {
         return taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
-    }
-
-//    @Transactional
-//    public void saveTasksToFilesystem() {
-//        updateAllTaskStatus();
-//
-//        // TODO: This will cause filesystem data to be wiped if run via repo init run method due to not having in-memory DB data.
-//        List<Task> tasks = taskRepo.findAll();
-//
-//        String tasksJson;
-//        try {
-//            tasksJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tasks);
-//        } catch (JsonProcessingException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        String tasksFilePath = tasksFileUtil.getTasksFile().getPath();
-//        tasksFileUtil.writeTasksToFilesystem(tasksFilePath, tasksJson);
-//        log.info("Filesystem save succeeded!");
-//    }
-
-    @Transactional
-    private void updateAllTaskStatus() {
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        List<Task> tasks = taskRepo.findAll();
-        tasks.forEach(task -> {
-            LocalDateTime expirationDate = task.getExpirationDate();
-
-            if (currentTime.isEqual(expirationDate) || currentTime.isAfter(expirationDate)) {
-                task.setStatus(TaskStatus.EXPIRED);
-                taskRepo.save(task);
-            }
-
-            // TODO: Need a calculation for NEAR_EXPIRATION after above check.
-        });
     }
 }

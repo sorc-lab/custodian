@@ -1,9 +1,11 @@
 package com.sorclab.custodian.shell;
 
+import com.sorclab.custodian.entity.Task;
 import com.sorclab.custodian.model.TaskDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -13,25 +15,22 @@ public class ShellDisplay {
     private static final String ANSI_GREEN = "\u001B[32m";
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_YELLOW = "\u001B[33m";
+
+    // TODO: Use orange if Task is complete but near certain fraction until expiration.
     private static final String ANSI_ORANGE = ANSI_RED + ANSI_YELLOW;
 
-    private static final String STATUS_NEW = "NEW";
-    private static final String STATUS_EXPIRED = "EXPIRED";
-    private static final String STATUS_COMPLETE = "COMPLETE";
-
-    public void displayTasks(List<TaskDTO> tasks) {
+    public void displayTasks(List<Task> tasks) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(String.format("%-5s%-25s%-80s%-15s%n", "ID", "LABEL", "DESCRIPTION", "TIMER"));
         stringBuilder.append(String.format("%-5s%-25s%-80s%-15s%n", "--", "-----", "-----------", "-----"));
 
         tasks.forEach(task -> {
+            String color;
 
-            String status = task.getStatus();
-
-            String color = null;
-            if (STATUS_NEW.equals(status) || STATUS_EXPIRED.equals(status)) {
+            boolean isExpired = LocalDateTime.now().isAfter(task.getExpirationDate());
+            if (isExpired || !task.isComplete()) {
                 color = ANSI_RED;
-            } else if (STATUS_COMPLETE.equals(status)) {
+            } else {
                 color = ANSI_GREEN;
             }
 
@@ -47,13 +46,12 @@ public class ShellDisplay {
         System.out.println(stringBuilder);
     }
 
-    public void displayTask(TaskDTO task) {
+    public void displayTask(Task task) {
         System.out.println("ID               : " + task.getId());
         System.out.println("Label            : " + task.getLabel());
         System.out.println("Description      : " + task.getDescription());
-        System.out.println("createdAt        : " + task.getCreatedAt());
+        System.out.println("updatedAt        : " + task.getUpdatedAt());
         System.out.println("timerDurationDays: " + task.getTimerDurationDays());
         System.out.println("expirationDate   : " + task.getExpirationDate());
-        System.out.println("status           : " + task.getStatus());
     }
 }
