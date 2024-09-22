@@ -84,9 +84,9 @@ public class TaskService {
     @Transactional
     public void completeTaskById(long id) {
         Task task = taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
-        task.setStatus(TaskStatus.COMPLETE);
-        task.setCreatedAt(LocalDateTime.now()); // TODO: This is wonky but works for now.
-        task.setExpirationDate(LocalDateTime.now().plusDays(task.getTimerDurationDays()));
+        task.setComplete(true);
+        task.setUpdatedAt(LocalDateTime.now());
+        task.setExpirationDate(task.getUpdatedAt().plusDays(task.getTimerDurationDays()));
 
         taskRepo.save(task);
     }

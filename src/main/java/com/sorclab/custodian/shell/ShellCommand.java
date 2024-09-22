@@ -1,6 +1,5 @@
 package com.sorclab.custodian.shell;
 
-import com.sorclab.custodian.entity.Task;
 import com.sorclab.custodian.model.TaskDTO;
 import com.sorclab.custodian.service.TaskService;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +8,6 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 /** TODO: Test via this pattern
      @SpringBootTest(properties = {
@@ -40,7 +37,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class ShellCommand {
-    private final ShellService shellService;
     private final ShellDisplay shellDisplay;
     private final TaskService taskService;
 
@@ -86,12 +82,12 @@ public class ShellCommand {
             @ShellOption(value = "--label", defaultValue = ShellOption.NULL, help = "e.g. --label 'Kitchen'") String label)
     {
         if (id != null) {
-            shellService.deleteTaskById(id);
+            taskService.deleteTaskById(id);
             return;
         }
 
         if (StringUtils.hasText(label)) {
-            shellService.deleteTaskByLabel(label);
+            taskService.deleteTaskByLabel(label);
             return;
         }
 
@@ -104,24 +100,12 @@ public class ShellCommand {
             @ShellOption(value = "--label", defaultValue = ShellOption.NULL, help = "e.g. --label 'Kitchen'") String label)
     {
         if (id != null) {
-            shellService.completeTaskById(id);
+            taskService.completeTaskById(id);
             return;
         }
 
         // TODO: Add complete by label
 
-        log.error("Complete Task MUST provide and id or label!");
+        log.error("Complete Task MUST provide an id or label!");
     }
-
-    /*
-        - edit task -> edit tasks label, desc, and timer, but not status, that is driven by cron
-        - complete task -> marks a task completed, which triggers the cron to reset based on timer
-        - get alerts/notifications (needs to also print these on startup somehow)
-     */
-
-    /* Alert system
-    The alert system needs to be cron schedules that write to DB the task status
-    GetAlerts will ONLY return expired items or items soon to expire in orange etc.
-    GetTasks will list them out and apply a color to ALL tasks completed and expired/soon to expire
-     */
 }
