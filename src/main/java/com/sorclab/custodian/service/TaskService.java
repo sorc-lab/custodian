@@ -1,8 +1,6 @@
 package com.sorclab.custodian.service;
 
 import com.sorclab.custodian.entity.Task;
-import com.sorclab.custodian.entity.TaskStatus;
-import com.sorclab.custodian.model.TaskDTO;
 import com.sorclab.custodian.repo.TaskRepo;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -11,15 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-/** H2 in-memory Database and Filesystem JSON
- * - DB init routine called to pull in JSON data from filesystem on startup
- * - Read methods directly from in-memory DB
- * - Write methods write to Filesystem AND in-memory DB
- * - Scheduled routines update Task status & sync current in-memory DB data to Filesystem
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -29,56 +20,20 @@ public class TaskService {
     private final TaskRepo taskRepo;
 
     @Transactional
-    public void createTask(TaskDTO taskDTO) {
-        int secondsUntilExpiration = taskDTO.getTimerDurationDays() * SECONDS_IN_24_HOURS;
+    public void createTask(Task task) {
+        int secondsUntilExpiration = task.getTimerDurationDays() * SECONDS_IN_24_HOURS;
         LocalDateTime expirationDate = LocalDateTime.now().plusSeconds(secondsUntilExpiration);
 
         Task newTask = Task.builder()
-                .label(taskDTO.getLabel())
-                .description(taskDTO.getDescription())
+                .label(task.getLabel())
+                .description(task.getDescription())
                 .updatedAt(LocalDateTime.now())
-                .timerDurationDays(taskDTO.getTimerDurationDays())
+                .timerDurationDays(task.getTimerDurationDays())
                 .expirationDate(expirationDate)
                 .isComplete(false)
                 .build();
 
         taskRepo.save(newTask);
-    }
-
-    // method only called via db init, so not need to do filesystem sync here, currently
-    @Transactional
-    public void createTasks(List<TaskDTO> taskDTOs) {
-        List<Task> newTasks = new ArrayList<>();
-
-        // TODO: Promote to streams if possible
-        taskDTOs.forEach(taskDTO -> {
-            int secondsUntilExpiration = taskDTO.getTimerDurationDays() * SECONDS_IN_24_HOURS;
-
-            // TODO: Revisit this logic, but good enough for this iteration to test live.
-            LocalDateTime expirationDate = taskDTO.getCreatedAt() != null
-                    ? taskDTO.getCreatedAt().plusSeconds(secondsUntilExpiration)
-                    : LocalDateTime.now().plusSeconds(secondsUntilExpiration);
-
-            Task newTask = Task.builder()
-                    .label(taskDTO.getLabel())
-                    .description(taskDTO.getDescription())
-
-                    // TODO: Bug here. This needs to be looked at closer. Update tasks keeps resetting time.
-                    // NOTE: This bug may have been fixed by adding a state update call on app start-up, but the
-                    //  scheduler and file system integration need to be re-designed.
-                    // NOTE: If this works, we can use existing time on update, otherwise need new method.
-                    // NOTE: Sharing the create method is bad but see if we can use for short term.
-                    .createdAt(taskDTO.getCreatedAt() != null ? taskDTO.getCreatedAt() : LocalDateTime.now())
-
-                    .timerDurationDays(taskDTO.getTimerDurationDays())
-                    .expirationDate(expirationDate)
-                    .status(TaskStatus.valueOf(taskDTO.getStatus()))
-                    .build();
-
-            newTasks.add(newTask);
-        });
-
-        taskRepo.saveAll(newTasks);
     }
 
     @Transactional

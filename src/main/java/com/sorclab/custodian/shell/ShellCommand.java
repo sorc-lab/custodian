@@ -1,6 +1,6 @@
 package com.sorclab.custodian.shell;
 
-import com.sorclab.custodian.model.TaskDTO;
+import com.sorclab.custodian.entity.Task;
 import com.sorclab.custodian.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,13 +46,13 @@ public class ShellCommand {
             @ShellOption(value = "--description", help = "e.g. --description 'Mop floors and clean surfaces'") String description,
             @ShellOption(value = "--timer-duration", help = "Set number of days e.g. --timer-duration 7") int timerDuration)
     {
-        TaskDTO taskDTO = TaskDTO.builder()
+        Task task = Task.builder()
                 .label(label)
                 .description(description)
                 .timerDurationDays(timerDuration)
                 .build();
 
-        taskService.createTask(taskDTO);
+        taskService.createTask(task);
     }
 
     @ShellMethod(value = "List Tasks")
