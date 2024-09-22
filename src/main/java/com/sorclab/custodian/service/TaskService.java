@@ -6,7 +6,7 @@ import com.sorclab.custodian.entity.Task;
 import com.sorclab.custodian.entity.TaskStatus;
 import com.sorclab.custodian.model.TaskDTO;
 import com.sorclab.custodian.repo.TaskRepo;
-import com.sorclab.custodian.util.TasksFileUtil;
+//import com.sorclab.custodian.util.TasksFileUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class TaskService {
 
     private final TaskRepo taskRepo;
     private final ObjectMapper objectMapper;
-    private final TasksFileUtil tasksFileUtil;
+//    private final TasksFileUtil tasksFileUtil;
 
     @Transactional
     public void createTask(TaskDTO taskDTO) {
@@ -60,7 +60,7 @@ public class TaskService {
 
         // TODO: Move this save so that we just do ONE findAll and ONE write!
         taskRepo.save(newTask);
-        saveTasksToFilesystem();
+//        saveTasksToFilesystem();
     }
 
     // method only called via db init, so not need to do filesystem sync here, currently
@@ -107,7 +107,7 @@ public class TaskService {
         task.setExpirationDate(LocalDateTime.now().plusDays(task.getTimerDurationDays()));
 
         taskRepo.save(task);
-        saveTasksToFilesystem();
+//        saveTasksToFilesystem();
     }
 
     public void completeTaskByLabel(String label) {
@@ -119,7 +119,7 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("No Task found for id: " + id));
 
         taskRepo.delete(task);
-        saveTasksToFilesystem();
+//        saveTasksToFilesystem();
     }
 
     public void deleteTaskByLabel(String label) {
@@ -127,7 +127,7 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("No task found for label: " + label));
 
         taskRepo.delete(task);
-        saveTasksToFilesystem();
+//        saveTasksToFilesystem();
     }
 
     public List<Task> getTasks() {
@@ -138,24 +138,24 @@ public class TaskService {
         return taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    @Transactional
-    public void saveTasksToFilesystem() {
-        updateAllTaskStatus();
-
-        // TODO: This will cause filesystem data to be wiped if run via repo init run method due to not having in-memory DB data.
-        List<Task> tasks = taskRepo.findAll();
-
-        String tasksJson;
-        try {
-            tasksJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tasks);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        String tasksFilePath = tasksFileUtil.getTasksFile().getPath();
-        tasksFileUtil.writeTasksToFilesystem(tasksFilePath, tasksJson);
-        log.info("Filesystem save succeeded!");
-    }
+//    @Transactional
+//    public void saveTasksToFilesystem() {
+//        updateAllTaskStatus();
+//
+//        // TODO: This will cause filesystem data to be wiped if run via repo init run method due to not having in-memory DB data.
+//        List<Task> tasks = taskRepo.findAll();
+//
+//        String tasksJson;
+//        try {
+//            tasksJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tasks);
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        String tasksFilePath = tasksFileUtil.getTasksFile().getPath();
+//        tasksFileUtil.writeTasksToFilesystem(tasksFilePath, tasksJson);
+//        log.info("Filesystem save succeeded!");
+//    }
 
     @Transactional
     private void updateAllTaskStatus() {
