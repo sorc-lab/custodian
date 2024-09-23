@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -46,22 +47,23 @@ public class TaskService {
         taskRepo.save(task);
     }
 
-    public void completeTaskByLabel(String label) {
-        // marks task complete and automatically triggers a scan to update ALL tasks status
-    }
-
     public void deleteTaskById(long id) {
         Task task = taskRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("No Task found for id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("No Task found for id: " + id));
 
         taskRepo.delete(task);
     }
 
     public void deleteTaskByLabel(String label) {
-        Task task = taskRepo.findByLabel(label)
-                .orElseThrow(() -> new RuntimeException("No task found for label: " + label));
+        Optional<Task> task = taskRepo.findByLabel(label);
+        if (task.isEmpty()) {
+            throw new EntityNotFoundException("No task found for label: " + label);
+        }
 
-        taskRepo.delete(task);
+//        Task task = taskRepo.findByLabel(label)
+//                .orElseThrow(() -> new EntityNotFoundException("No task found for label: " + label));
+
+        taskRepo.delete(task.get());
     }
 
     public List<Task> getTasks() {
