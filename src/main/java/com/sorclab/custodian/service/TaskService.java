@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -39,7 +38,9 @@ public class TaskService {
 
     @Transactional
     public void completeTaskById(long id) {
-        Task task = taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
+        Task task = taskRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No task found for id: " + id));
+
         task.setComplete(true);
         task.setUpdatedAt(LocalDateTime.now());
         task.setExpirationDate(task.getUpdatedAt().plusDays(task.getTimerDurationDays()));
@@ -55,15 +56,10 @@ public class TaskService {
     }
 
     public void deleteTaskByLabel(String label) {
-        Optional<Task> task = taskRepo.findByLabel(label);
-        if (task.isEmpty()) {
-            throw new EntityNotFoundException("No task found for label: " + label);
-        }
+        Task task = taskRepo.findByLabel(label)
+                .orElseThrow(() -> new EntityNotFoundException("No task found for label: " + label));
 
-//        Task task = taskRepo.findByLabel(label)
-//                .orElseThrow(() -> new EntityNotFoundException("No task found for label: " + label));
-
-        taskRepo.delete(task.get());
+        taskRepo.delete(task);
     }
 
     public List<Task> getTasks() {
@@ -71,6 +67,7 @@ public class TaskService {
     }
 
     public Task getTask(long id) {
-        return taskRepo.findById(id).orElseThrow(EntityNotFoundException::new);
+        return taskRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No task found for id: " + id));
     }
 }

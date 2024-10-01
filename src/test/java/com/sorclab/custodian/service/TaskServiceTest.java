@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,7 +95,8 @@ public class TaskServiceTest {
         when(taskRepo.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> taskService.completeTaskById(1L))
-                .isInstanceOf(EntityNotFoundException.class);
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No task found for id: 1");
 
         verify(taskRepo, times(0)).save(any());
     }
@@ -108,18 +110,15 @@ public class TaskServiceTest {
         verify(taskRepo).delete(Task.builder().id(1L).build());
     }
 
-    // TODO: assertThatThrownBy is not working as expected in these tests. Fix it.
-//    @Test
-//    public void deleteTaskById_ThrowsEntityNotFoundException() {
-//        when(taskRepo.findById(1L)).thenReturn(Optional.empty());
-//
-//        taskService.deleteTaskById(1L);
-//
-//        assertThatThrownBy(() -> taskService.deleteTaskById(1L))
-//                .isInstanceOf(EntityNotFoundException.class);
-//
-//        verify(taskRepo, times(0)).delete(any());
-//    }
+    @Test
+    public void deleteTaskById_ThrowsEntityNotFoundException() {
+        when(taskRepo.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> taskService.deleteTaskById(1L))
+                .isInstanceOf(EntityNotFoundException.class);
+
+        verify(taskRepo, times(0)).delete(any());
+    }
 
     @Test
     public void deleteTaskByLabel() {
@@ -131,17 +130,37 @@ public class TaskServiceTest {
         verify(taskRepo).delete(Task.builder().label("test-label").build());
     }
 
-    // TODO: assertThatThrownBy is not working as expected in these tests. Fix it.
-//    @Test
-//    public void deleteTaskByLabel_ThrowsEntityNotFoundException() {
-//        //when(taskRepo.findByLabel("test-label")).thenReturn(Optional.empty());
-//
-//        taskService.deleteTaskByLabel("test-label");
-//
-//        assertThatThrownBy(() -> taskService.deleteTaskByLabel("test-label"))
-//                .isInstanceOf(EntityNotFoundException.class)
-//                .hasMessageContaining("No task found for label: test-label");
-//
-//        //verify(taskRepo, times(0)).delete(any());
-//    }
+    @Test
+    public void deleteTaskByLabel_ThrowsEntityNotFoundException() {
+        when(taskRepo.findByLabel("test-label")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> taskService.deleteTaskByLabel("test-label"))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No task found for label: test-label");
+
+        verify(taskRepo, times(0)).delete(any());
+    }
+
+    @Test
+    public void getTasks() {
+        when(taskRepo.findAll()).thenReturn(List.of(Task.builder().build()));
+        List<Task> tasks = taskService.getTasks();
+        assertThat(tasks).isEqualTo(List.of(Task.builder().build()));
+    }
+
+    @Test
+    public void getTask() {
+        when(taskRepo.findById(1L)).thenReturn(Optional.of(Task.builder().id(1L).build()));
+        Task task = taskService.getTask(1L);
+        assertThat(task).isEqualTo(Task.builder().id(1L).build());
+    }
+
+    @Test
+    public void getTask_ThrowsEntityNotFoundException() {
+        when(taskRepo.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> taskService.getTask(1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No task found for id: 1");
+    }
 }
