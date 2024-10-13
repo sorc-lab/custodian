@@ -20,8 +20,8 @@ public class ShellDisplay {
 
     public void displayTasks(List<Task> tasks) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(String.format("%-5s%-25s%-80s%-15s%n", "ID", "LABEL", "DESCRIPTION", "TIMER"));
-        stringBuilder.append(String.format("%-5s%-25s%-80s%-15s%n", "--", "-----", "-----------", "-----"));
+        stringBuilder.append(String.format("%-5s%-80s%-15s%n", "ID", "DESCRIPTION", "TIMER"));
+        stringBuilder.append(String.format("%-5s%-80s%-15s%n", "--", "-----------", "-----"));
 
         tasks.forEach(task -> {
             String color;
