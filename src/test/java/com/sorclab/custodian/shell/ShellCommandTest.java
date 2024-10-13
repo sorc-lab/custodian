@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,9 +49,14 @@ public class ShellCommandTest {
     }
 
     @Test
-    public void testView_NullId_LogsError() {
-        assertThatThrownBy(() -> shellCommand.view(null))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("View MUST provide an id or label!");
+    public void delete() {
+        shellCommand.delete(1L);
+        verify(taskService).deleteTaskById(eq(1L));
+    }
+
+    @Test
+    public void complete() {
+        shellCommand.complete(1L);
+        verify(taskService).completeTaskById(1L);
     }
 }

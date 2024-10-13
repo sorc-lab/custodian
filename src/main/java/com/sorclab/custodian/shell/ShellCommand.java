@@ -8,6 +8,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
+// TODO: Clean up help docs and examples. Consider removing -- tags, not required but helpful?
+
 @ShellComponent
 @RequiredArgsConstructor
 @Slf4j
@@ -34,29 +36,17 @@ public class ShellCommand {
     }
 
     @ShellMethod(value = "View a Task")
-    public void view(@ShellOption(value = "--id", defaultValue = ShellOption.NULL,help = "e.g. --id 10") Long id) {
-        if (id == null) {
-            throw new RuntimeException("View MUST provide an id or label!");
-        }
-
+    public void view(@ShellOption(value = "--id", help = "e.g. --id 10") Long id) {
         shellDisplay.displayTask(taskService.getTask(id));
     }
 
     @ShellMethod(value = "Delete Task by id or label")
-    public void delete(@ShellOption(value = "--id", defaultValue = ShellOption.NULL, help = "e.g. --id 10") Long id) {
-        if (id == null) {
-           throw new RuntimeException("Delete MUST provide an id or label!");
-        }
-
+    public void delete(@ShellOption(value = "--id", help = "e.g. --id 10") Long id) {
         taskService.deleteTaskById(id);
     }
 
     @ShellMethod(value = "Complete task by id or label")
-    public void complete(@ShellOption(value = "--id", defaultValue = ShellOption.NULL, help = "e.g. --id 10") Long id) {
-        if (id == null) {
-            throw new RuntimeException("Complete Task MUST provide an id or label!");
-        }
-
+    public void complete(@ShellOption(value = "--id", help = "e.g. --id 10") Long id) {
         taskService.completeTaskById(id);
     }
 }
