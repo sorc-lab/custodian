@@ -3,6 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<!-- TODO: This entire pom needs to be cleaned up -->
 	<groupId>com.sorclab</groupId>
 	<artifactId>custodian</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -55,26 +56,16 @@
 			<groupId>org.springframework.shell</groupId>
 			<artifactId>spring-shell-starter</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework.shell/spring-shell-starter-jna -->
 		<dependency>
 			<groupId>org.springframework.shell</groupId>
 			<artifactId>spring-shell-starter-jna</artifactId>
-<!--			<version>3.3.1</version>-->
 		</dependency>
-
 
 		<!-- Spring Boot Starter for Data JPA -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-
-		<!-- Explicit JPA Dependency -->
-<!--		<dependency>-->
-<!--			<groupId>jakarta.persistence</groupId>-->
-<!--			<artifactId>jakarta.persistence-api</artifactId>-->
-<!--&lt;!&ndash;			<version>3.1.0</version>&ndash;&gt;-->
-<!--		</dependency>-->
 
 		<!-- H2 Database -->
 		<dependency>
@@ -96,14 +87,18 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+
+		<!-- TODO: May not need this if able to remove the object mapper config class -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>

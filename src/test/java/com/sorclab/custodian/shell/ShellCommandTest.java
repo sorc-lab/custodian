@@ -10,52 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-/* TODO: Mock Slf4J to assert log.error, etc.
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.lang.reflect.Field;
-
-import static org.mockito.Mockito.*;
-
-@SpringBootTest
-public class TaskServiceTest {
-
-    private TaskService taskService;
-
-    private Logger mockLogger;
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        taskService = new TaskService();
-        mockLogger = Mockito.mock(Logger.class);
-        setMockLogger(taskService, mockLogger);
-    }
-
-    private void setMockLogger(Object target, Logger mockLogger) throws Exception {
-        Field loggerField = target.getClass().getDeclaredField("log");
-        loggerField.setAccessible(true);
-        loggerField.set(target, mockLogger);
-    }
-
-    @Test
-    public void testLogging() {
-        taskService.processTask();
-
-        // Verify that specific log messages were logged
-        verify(mockLogger).info("Processing task...");
-        verify(mockLogger).error("An error occurred while processing the task");
-    }
-}
- */
 
 @ExtendWith(MockitoExtension.class)
 public class ShellCommandTest {
@@ -93,7 +51,9 @@ public class ShellCommandTest {
     }
 
     @Test
-    public void view_NullId_LogsError() {
-
+    public void testView_NullId_LogsError() {
+        assertThatThrownBy(() -> shellCommand.view(null, null))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("View MUST provide an id or label!");
     }
 }

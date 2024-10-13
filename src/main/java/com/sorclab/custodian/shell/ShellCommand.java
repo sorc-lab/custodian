@@ -10,8 +10,8 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.util.StringUtils;
 
 @ShellComponent
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class ShellCommand {
     private final ShellDisplay shellDisplay;
     private final TaskService taskService;
@@ -41,14 +41,12 @@ public class ShellCommand {
             @ShellOption(value = "--id", defaultValue = ShellOption.NULL,help = "e.g. --id 10") Long id,
             @ShellOption(value = "--label", defaultValue = ShellOption.NULL,help = "e.g. --label 'Kitchen'") String label)
     {
-        if (id != null) {
-            shellDisplay.displayTask(taskService.getTask(id));
-            return;
+        if (id == null) {
+            throw new RuntimeException("View MUST provide an id or label!");
         }
 
         // TODO: Add viewByLabel
-
-        log.error("View MUST provide an id or label!");
+        shellDisplay.displayTask(taskService.getTask(id));
     }
 
     @ShellMethod(value = "Delete Task by id or label")
