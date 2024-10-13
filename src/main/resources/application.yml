@@ -3,8 +3,8 @@ spring:
     allow-circular-references: true
     web-application-type: none
 
-  # TODO: Not sure if these are necessary? Not working on Windows since new shell version.
   # SPRING SHELL
+  # NOTE: Not sure if these are necessary? Not working on Windows since new shell version.
   shell:
     script:
       enabled: true
@@ -14,20 +14,21 @@ spring:
     ansi:
       enabled: always
 
-  # IN-MEMORY DATABASE
-  h2:
-    # login via localhost:8080/h2-console
-    console:
-      enabled: true
-      path: /h2-console
+  # SQLite DB
   datasource:
-    url: jdbc:h2:mem:mydb
-    username: sa
+    url: jdbc:sqlite:./data/custodian.db
+    driver-class-name: org.sqlite.JDBC
+    username: admin
     password: password
-    driverClassName: org.h2.Driver
   jpa:
-    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.community.dialect.SQLiteDialect
+    show-sql: true
 
+# NOTE: Un-comment for useful logging output.
 #logging:
 #  level:
 #    org.springframework.shell: DEBUG
+#    org.hibernate: DEBUG
+#    org.springframework: DEBUG

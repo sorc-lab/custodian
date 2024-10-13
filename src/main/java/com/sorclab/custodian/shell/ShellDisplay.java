@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// TODO: Abstract the sys calls to print into a PrintScreen component and add test coverage once ANSI_ORANGE added.
+
 @Component
 @Slf4j
 public class ShellDisplay {
