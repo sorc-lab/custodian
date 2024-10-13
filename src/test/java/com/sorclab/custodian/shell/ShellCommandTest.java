@@ -26,12 +26,11 @@ public class ShellCommandTest {
     @Test
     public void add() {
         Task expectedTask = Task.builder()
-                .label("test-label")
                 .description("test-description")
                 .timerDurationDays(1)
                 .build();
 
-        shellCommand.add("test-label", "test-description", 1);
+        shellCommand.add("test-description", 1);
 
         verify(taskService).createTask(eq(expectedTask));
     }
@@ -46,13 +45,13 @@ public class ShellCommandTest {
     @Test
     public void view() {
         when(taskService.getTask(1L)).thenReturn(Task.builder().build());
-        shellCommand.view(1L, null);
+        shellCommand.view(1L);
         verify(shellDisplay).displayTask(Task.builder().build());
     }
 
     @Test
     public void testView_NullId_LogsError() {
-        assertThatThrownBy(() -> shellCommand.view(null, null))
+        assertThatThrownBy(() -> shellCommand.view(null))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("View MUST provide an id or label!");
     }

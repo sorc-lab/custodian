@@ -37,7 +37,6 @@ public class TaskServiceTest {
     @Test
     public void createTask() {
         Task createTask = Task.builder()
-                .label("test-label")
                 .description("test-description")
                 .timerDurationDays(1)
                 .build();
@@ -47,7 +46,6 @@ public class TaskServiceTest {
         verify(taskRepo).save(taskArgCaptor.capture());
 
         Task actualSaveTask = taskArgCaptor.getValue();
-        assertThat(actualSaveTask.getLabel()).isEqualTo("test-label");
         assertThat(actualSaveTask.getDescription()).isEqualTo("test-description");
 
         LocalDateTime currentTimeTruncated = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
@@ -116,27 +114,6 @@ public class TaskServiceTest {
 
         assertThatThrownBy(() -> taskService.deleteTaskById(1L))
                 .isInstanceOf(EntityNotFoundException.class);
-
-        verify(taskRepo, times(0)).delete(any());
-    }
-
-    @Test
-    public void deleteTaskByLabel() {
-        when(taskRepo.findByLabel("test-label"))
-                .thenReturn(Optional.of(Task.builder().label("test-label").build()));
-
-        taskService.deleteTaskByLabel("test-label");
-
-        verify(taskRepo).delete(Task.builder().label("test-label").build());
-    }
-
-    @Test
-    public void deleteTaskByLabel_ThrowsEntityNotFoundException() {
-        when(taskRepo.findByLabel("test-label")).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> taskService.deleteTaskByLabel("test-label"))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("No task found for label: test-label");
 
         verify(taskRepo, times(0)).delete(any());
     }

@@ -25,7 +25,6 @@ public class TaskService {
         LocalDateTime expirationDate = LocalDateTime.now().plusSeconds(secondsUntilExpiration);
 
         Task newTask = Task.builder()
-                .label(task.getLabel())
                 .description(task.getDescription())
                 .updatedAt(LocalDateTime.now())
                 .timerDurationDays(task.getTimerDurationDays())
@@ -51,13 +50,6 @@ public class TaskService {
     public void deleteTaskById(long id) {
         Task task = taskRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No Task found for id: " + id));
-
-        taskRepo.delete(task);
-    }
-
-    public void deleteTaskByLabel(String label) {
-        Task task = taskRepo.findByLabel(label)
-                .orElseThrow(() -> new EntityNotFoundException("No task found for label: " + label));
 
         taskRepo.delete(task);
     }

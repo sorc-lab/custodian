@@ -33,10 +33,9 @@ public class ShellDisplay {
                 color = ANSI_GREEN;
             }
 
-            stringBuilder.append(String.format("%s%-5d%-25s%-80s%-15s%s%n",
+            stringBuilder.append(String.format("%s%-5d%-80s%-15s%s%n",
                     color,
                     task.getId(),
-                    task.getLabel(),
                     task.getDescription(),
                     "every " + task.getTimerDurationDays() + " days",
                     ANSI_RESET));
@@ -47,7 +46,6 @@ public class ShellDisplay {
 
     public void displayTask(Task task) {
         System.out.println("ID               : " + task.getId());
-        System.out.println("Label            : " + task.getLabel());
         System.out.println("Description      : " + task.getDescription());
         System.out.println("updatedAt        : " + task.getUpdatedAt());
         System.out.println("timerDurationDays: " + task.getTimerDurationDays());
