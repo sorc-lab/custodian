@@ -49,7 +49,6 @@ public class ShellCommand {
         // TODO: Add viewByLabel
 
         log.error("View MUST provide an id or label!");
-
     }
 
     @ShellMethod(value = "Delete Task by id or label")
