@@ -1,0 +1,161 @@
+[ {
+  "id" : 1,
+  "label" : "OfficeSurfaces",
+  "description" : "Office surfaces",
+  "createdAt" : "2024-06-06T06:40:10.274396",
+  "expirationDate" : "2024-06-13T06:40:10.274396",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 2,
+  "label" : "LabSurfaces",
+  "description" : "Lab surfaces",
+  "createdAt" : "2024-06-06T06:40:16.167248",
+  "expirationDate" : "2024-06-13T06:40:16.167248",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 3,
+  "label" : "UpstairsCarpets",
+  "description" : "Upstairs carpets and stairs vacuumed",
+  "createdAt" : "2024-06-06T06:40:19.023367",
+  "expirationDate" : "2024-06-13T06:40:19.023367",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 4,
+  "label" : "UpstairsBathMop",
+  "description" : "Upstairs bathrooms mopped",
+  "createdAt" : "2024-06-06T06:40:21.914977",
+  "expirationDate" : "2024-06-13T06:40:21.914977",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 5,
+  "label" : "MasterBathSurface",
+  "description" : "Master bathroom toilet and surfaces",
+  "createdAt" : "2024-06-06T06:40:27.764286",
+  "expirationDate" : "2024-06-13T06:40:27.764286",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 6,
+  "label" : "UpGuestBathSurface",
+  "description" : "Upstairs Guest bathroom toilet and surfaces",
+  "createdAt" : "2024-06-06T06:40:30.212507",
+  "expirationDate" : "2024-06-13T06:40:30.212507",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 7,
+  "label" : "DownBathSurface",
+  "description" : "Downstairs bathroom toilet and surfaces",
+  "createdAt" : "2024-06-06T06:40:32.590666",
+  "expirationDate" : "2024-06-13T06:40:32.590666",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 8,
+  "label" : "DownCarpets",
+  "description" : "Downstairs carpets vacuumed",
+  "createdAt" : "2024-06-06T06:40:34.95281",
+  "expirationDate" : "2024-06-13T06:40:34.95281",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 9,
+  "label" : "DownKitchenBathFront",
+  "description" : "Downstairs kitchen, bathroom and front room entry mopped",
+  "createdAt" : "2024-06-06T06:40:37.596216",
+  "expirationDate" : "2024-06-13T06:40:37.596216",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 10,
+  "label" : "DownKitchenDinSurface",
+  "description" : "Downstairs kitchen and dining room surface tops",
+  "createdAt" : "2024-06-06T06:40:40.24462",
+  "expirationDate" : "2024-06-13T06:40:40.24462",
+  "timerDurationDays" : 7,
+  "status" : "NEW"
+}, {
+  "id" : 11,
+  "label" : "UpSills",
+  "description" : "Upstairs window sills",
+  "createdAt" : "2024-06-06T06:40:57.229042",
+  "expirationDate" : "2024-06-20T06:40:57.229042",
+  "timerDurationDays" : 14,
+  "status" : "NEW"
+}, {
+  "id" : 12,
+  "label" : "UpBathMop",
+  "description" : "Upstairs bathrooms mopped",
+  "createdAt" : "2024-06-06T06:41:01.184632",
+  "expirationDate" : "2024-06-20T06:41:01.184632",
+  "timerDurationDays" : 14,
+  "status" : "NEW"
+}, {
+  "id" : 13,
+  "label" : "MasterBathDeep",
+  "description" : "Master bathroom tub, shower & Windex mirror",
+  "createdAt" : "2024-06-06T06:41:04.265427",
+  "expirationDate" : "2024-06-20T06:41:04.265427",
+  "timerDurationDays" : 14,
+  "status" : "NEW"
+}, {
+  "id" : 14,
+  "label" : "DownBathMirror",
+  "description" : "Downstairs bathroom Windex mirror",
+  "createdAt" : "2024-06-06T06:41:06.92384",
+  "expirationDate" : "2024-06-20T06:41:06.92384",
+  "timerDurationDays" : 14,
+  "status" : "NEW"
+}, {
+  "id" : 15,
+  "label" : "DownSills",
+  "description" : "Downstairs window sills",
+  "createdAt" : "2024-06-06T06:41:09.792444",
+  "expirationDate" : "2024-06-20T06:41:09.792444",
+  "timerDurationDays" : 14,
+  "status" : "NEW"
+}, {
+  "id" : 16,
+  "label" : "UpGuestBathDeep",
+  "description" : "Upstairs Guest bathroom tub, shower & Windex mirror",
+  "createdAt" : "2024-06-06T06:41:12.551948",
+  "expirationDate" : "2024-06-20T06:41:12.551948",
+  "timerDurationDays" : 14,
+  "status" : "NEW"
+}, {
+  "id" : 17,
+  "label" : "MasterBedChange",
+  "description" : "Master bed changed",
+  "createdAt" : "2024-06-06T06:41:16.084154",
+  "expirationDate" : "2024-07-06T06:41:16.084154",
+  "timerDurationDays" : 30,
+  "status" : "NEW"
+}, {
+  "id" : 18,
+  "label" : "GuestBedChange",
+  "description" : "Guest bed changed",
+  "createdAt" : "2024-06-06T06:41:18.672503",
+  "expirationDate" : "2024-07-06T06:41:18.672503",
+  "timerDurationDays" : 30,
+  "status" : "NEW"
+}, {
+  "id" : 19,
+  "label" : "MasterBathMats",
+  "description" : "Master bathroom mats changed",
+  "createdAt" : "2024-06-06T06:41:21.737284",
+  "expirationDate" : "2024-07-06T06:41:21.737284",
+  "timerDurationDays" : 30,
+  "status" : "NEW"
+}, {
+  "id" : 20,
+  "label" : "UpGuestBathMats",
+  "description" : "Guest bathroom mats changed",
+  "createdAt" : "2024-06-06T06:41:24.4142169",
+  "expirationDate" : "2024-07-06T06:41:24.4142169",
+  "timerDurationDays" : 30,
+  "status" : "NEW"
+} ]

@@ -1,0 +1,33 @@
+ISSUES:
+    - ShellService vs. TaskService
+    - Tons of logic laying around dealing with filesystem sync.
+    - TODO: Read and understand entire ShellService and TaskService functions. Consolidate into 1 service.
+
+NOTES:
+    - Should only consist of a shell command API layer and a display service.
+    - This could be a modular boundary and require a DTO passed between.
+    - Whole app should consist of a Task module, and a Shell module.
+    - DO NOT make this a Modulith right now, or move into separate packages. But treat them as
+        modules CONCEPTUALLY!
+    - MAJOR ISSUE: There is currently an update all task method that checks all the states of each
+        task and changes their status etc to be displayed properly. Storing state may not be necessary at all.
+        Ideas:
+            1. Let the client update state on read. When client fetches data, do a mass update.
+            2. DO NOT EVEN STORE STATE!!! Just store the exp date and let the client use display
+                logic and display the state.
+            3. We use createdAt as a field and it is dumb. Just use an 'updatedAt' field.
+                -> we ONLY care about when a Task was last updated, and when it expires.
+                -> we need the timerDuration in days to determine alerts, etc and when expiration should be.
+
+TODOs:
+    [x] Get shell working with all filesystem crap removed. Have it work with H2 in-memory DB ONLY.
+    [ ] Clean up entire code base. Remove .gitignore stuff and data dirs, etc.
+    [ ] Write nominal integration tests from Shell command to mock db, if possible, or start at service layer.
+    [ ] Write repository tests.
+    [ ] Write unit tests.
+    [ ] Swap out H2 for SQLite. -> re-test, and all should still pass via DB agnostic layers. test manually.
+    [ ] Find a sick colored ascii art for Custodian, etc. Add colors if possible.
+    [ ] Version it 1.0.0
+    [ ] Figure out how to package it into a zip or binary executable and make a GitHub release image, zip or binary.
+    [ ] Write up remaining issue tickets for features or client re-design ideas.
+    [ ] Write a ticket to figure out how to add it to apt-get, chocolatey, maven, etc. How can i release it publically?

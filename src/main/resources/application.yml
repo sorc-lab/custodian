@@ -1,0 +1,34 @@
+spring:
+  main:
+    allow-circular-references: true
+    web-application-type: none
+
+  # SPRING SHELL
+  # NOTE: Not sure if these are necessary? Not working on Windows since new shell version.
+  shell:
+    script:
+      enabled: true
+    interactive:
+      enabled: true
+  output:
+    ansi:
+      enabled: always
+
+  # SQLite DB
+  datasource:
+    url: jdbc:sqlite:./data/custodian.db
+    driver-class-name: org.sqlite.JDBC
+    username: admin
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.community.dialect.SQLiteDialect
+    show-sql: true
+
+# NOTE: Un-comment for useful logging output.
+#logging:
+#  level:
+#    org.springframework.shell: DEBUG
+#    org.hibernate: DEBUG
+#    org.springframework: DEBUG

@@ -37,3 +37,4 @@ spring-shell.log
 
 ### custodian ###
 server/data
+/data
