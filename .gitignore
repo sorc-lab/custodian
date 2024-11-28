@@ -38,3 +38,4 @@ spring-shell.log
 ### custodian ###
 server/data
 /data
+current_stock.txt

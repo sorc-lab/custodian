@@ -1,0 +1,28 @@
+1)  4       Many Green Magic Potions (25)
+2)  4       Many Green Cold Potions (25)
+3)  4       Many Green Acid Potions (25)
+4)  4       Many Green Poison Potions (25)
+5)  4       Many Green Psionic Potions (25)
+6)  4       Four Magenta Potions
+7)  4       Eleven Yellow Potions
+8)  4       Eleven Pink Potions
+9)  4       Three Pink Potions
+10)  4       Many Yellow Potions (25)
+11)  4       Eleven Orange Potions
+12)  4       Eighteen Orange Potions
+13)  4       Many Green Fire Potions (25)
+14)  4       Many Green Sharp Potions (25)
+15)  4       Many Green Blunt Potions (25)
+16)  4       Many Green Pierce Potions (25)
+17)  4       Many Green Electricity Potions (25)
+18)  300     Storm Dragoness Bag
+19)  350     Storm Dragoness Bag
+20)  350     Storm Dragoness Bag
+Shop Listing From 0 to 24 of 32 (75%) - q to quit.
+21)  350     Storm Dragoness Bag
+22)  6       Many Potions of Restore Water (25)
+23)  6       Ten Potions of Restore Water
+24)  4       Eighteen Violet Potions
+25)  4       Many Violet Potions (25)
+26)  4       Many Violet Potions (25)
+27)  4       Many Violet Potions (25)

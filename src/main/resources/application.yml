@@ -1,3 +1,26 @@
+brew-config:
+  orange: 100
+  yellow: 100
+  pink: 100
+  violet: 100
+  magenta: 100
+
+  fire: 25
+  cold: 25
+  acid: 25
+  magic: 25
+  psionic: 25
+  poison: 25
+  sharp: 25
+  blunt: 25
+  pierce: 25
+  electricity: 25
+
+  mana: 100
+  restore-water: 100
+  cure-water: 100
+  cyan: 175
+
 spring:
   main:
     allow-circular-references: true

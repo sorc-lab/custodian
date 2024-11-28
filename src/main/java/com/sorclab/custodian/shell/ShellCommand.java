@@ -1,6 +1,7 @@
 package com.sorclab.custodian.shell;
 
 import com.sorclab.custodian.entity.Task;
+import com.sorclab.custodian.service.BrewService;
 import com.sorclab.custodian.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.shell.standard.ShellOption;
 public class ShellCommand {
     private final ShellDisplay shellDisplay;
     private final TaskService taskService;
+    private final BrewService brewService;
 
     @ShellMethod(value = "Add a Task")
     public void add(
@@ -48,5 +50,10 @@ public class ShellCommand {
     @ShellMethod(value = "Complete task by id or label")
     public void complete(@ShellOption(value = "--id", help = "e.g. --id 10") Long id) {
         taskService.completeTaskById(id);
+    }
+
+    @ShellMethod(value = "Get count of brews to re-stock based on app yaml configuration.")
+    public void brew(String currentStock) {
+        System.out.println(brewService.currentStockMap());
     }
 }
