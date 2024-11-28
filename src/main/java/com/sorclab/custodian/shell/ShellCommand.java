@@ -1,5 +1,7 @@
 package com.sorclab.custodian.shell;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorclab.custodian.entity.Task;
 import com.sorclab.custodian.service.BrewService;
 import com.sorclab.custodian.service.TaskService;
@@ -54,6 +56,15 @@ public class ShellCommand {
 
     @ShellMethod(value = "Get count of brews to re-stock based on app yaml configuration.")
     public void brew(String currentStock) {
-        System.out.println(brewService.currentStockMap());
+        String brewOrder;
+        try {
+            brewOrder = new ObjectMapper()
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(brewService.brewOrder());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println(brewOrder);
     }
 }

@@ -1,5 +1,7 @@
 package com.sorclab.custodian.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorclab.custodian.config.BrewConfig;
 import com.sorclab.custodian.config.BrewType;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +29,98 @@ public class BrewService {
 
     private final BrewConfig brewConfig;
 
-    public BrewConfig brewConfig() {
-        return brewConfig;
+    public BrewConfig brewOrder() {
+        return BrewConfig.builder()
+                .orange(calcDesiredAmount(desiredStock().getOrange(), currentStock().getOrange()))
+                .yellow(calcDesiredAmount(desiredStock().getYellow(), currentStock().getYellow()))
+                .pink(calcDesiredAmount(desiredStock().getPink(), currentStock().getPink()))
+                .violet(calcDesiredAmount(desiredStock().getViolet(), currentStock().getViolet()))
+                .magenta(calcDesiredAmount(desiredStock().getMagenta(), currentStock().getMagenta()))
+                .fire(calcDesiredAmount(desiredStock().getFire(), currentStock().getFire()))
+                .cold(calcDesiredAmount(desiredStock().getCold(), currentStock().getCold()))
+                .acid(calcDesiredAmount(desiredStock().getAcid(), currentStock().getAcid()))
+                .magic(calcDesiredAmount(desiredStock().getMagic(), currentStock().getMagic()))
+                .psionic(calcDesiredAmount(desiredStock().getPsionic(), currentStock().getPsionic()))
+                .poison(calcDesiredAmount(desiredStock().getPoison(), currentStock().getPoison()))
+                .sharp(calcDesiredAmount(desiredStock().getSharp(), currentStock().getSharp()))
+                .blunt(calcDesiredAmount(desiredStock().getBlunt(), currentStock().getBlunt()))
+                .pierce(calcDesiredAmount(desiredStock().getPierce(), currentStock().getPierce()))
+                .electricity(calcDesiredAmount(desiredStock().getElectricity(), currentStock().getElectricity()))
+                .mana(calcDesiredAmount(desiredStock().getMana(), currentStock().getMana()))
+                .cyan(calcDesiredAmount(desiredStock().getCyan(), currentStock().getCyan()))
+                .restoreWater(calcDesiredAmount(desiredStock().getRestoreWater(), currentStock().getRestoreWater()))
+                .cureWater(calcDesiredAmount(desiredStock().getCureWater(), currentStock().getCureWater()))
+                .build();
     }
 
-    public Map<String, Integer> currentStockMap() {
+    // TODO: Just inline this calc. Do not need a function for it.
+    private int calcDesiredAmount(int desired, int current) {
+        return desired - current;
+//        return Math.max(0, desired - current);
+    }
+
+    private BrewConfig desiredStock() {
+        return BrewConfig.builder()
+                .orange(brewConfig.getOrange())
+                .yellow(brewConfig.getYellow())
+                .pink(brewConfig.getPink())
+                .violet(brewConfig.getViolet())
+                .magenta(brewConfig.getMagenta())
+                .fire(brewConfig.getFire())
+                .cold(brewConfig.getCold())
+                .acid(brewConfig.getAcid())
+                .magic(brewConfig.getMagic())
+                .psionic(brewConfig.getPsionic())
+                .poison(brewConfig.getPoison())
+                .sharp(brewConfig.getSharp())
+                .blunt(brewConfig.getBlunt())
+                .pierce(brewConfig.getPierce())
+                .electricity(brewConfig.getElectricity())
+                .mana(brewConfig.getMana())
+                .cyan(brewConfig.getCyan())
+                .restoreWater(brewConfig.getRestoreWater())
+                .cureWater(brewConfig.getCureWater())
+                .build();
+    }
+
+    private BrewConfig currentStock() {
+        Map<String, Integer> currentStockMap = currentStockMap();
+
+        return BrewConfig.builder()
+                .orange(getAmountByBrewType(currentStockMap, BrewType.ORANGE))
+                .yellow(getAmountByBrewType(currentStockMap, BrewType.YELLOW))
+                .pink(getAmountByBrewType(currentStockMap, BrewType.PINK))
+                .violet(getAmountByBrewType(currentStockMap, BrewType.VIOLET))
+                .magenta(getAmountByBrewType(currentStockMap, BrewType.MAGENTA))
+                .fire(getAmountByBrewType(currentStockMap, BrewType.FIRE))
+                .cold(getAmountByBrewType(currentStockMap, BrewType.COLD))
+                .acid(getAmountByBrewType(currentStockMap, BrewType.ACID))
+                .magic(getAmountByBrewType(currentStockMap, BrewType.MAGIC))
+                .psionic(getAmountByBrewType(currentStockMap, BrewType.PSIONIC))
+                .poison(getAmountByBrewType(currentStockMap, BrewType.POISON))
+                .sharp(getAmountByBrewType(currentStockMap, BrewType.SHARP))
+                .blunt(getAmountByBrewType(currentStockMap, BrewType.BLUNT))
+                .pierce(getAmountByBrewType(currentStockMap, BrewType.PIERCE))
+                .electricity(getAmountByBrewType(currentStockMap, BrewType.ELECTRICITY))
+                .mana(getAmountByBrewType(currentStockMap, BrewType.MANA))
+                .cyan(getAmountByBrewType(currentStockMap, BrewType.CYAN))
+                .restoreWater(getAmountByBrewType(currentStockMap, BrewType.RESTORE_WATER))
+                .cureWater(getAmountByBrewType(currentStockMap, BrewType.CURE_WATER))
+                .build();
+    }
+
+    private int getAmountByBrewType(Map<String, Integer> map, BrewType brewType) {
+        int amount;
+        try {
+            amount = map.get(brewType.getValue());
+        } catch (NullPointerException ex) {
+            amount = 0;
+        }
+
+        return amount;
+    }
+
+    private Map<String, Integer> currentStockMap() {
         Map<String, Integer> currentStockMap = new HashMap<>();
 
         // TODO: Consider breaking this code up into separate methods vs. nested try/catch's
@@ -59,8 +148,8 @@ public class BrewService {
                     Map<String, Integer> currentStockEntry = currentStockEntry(line);
                     String key = currentStockEntry.entrySet().iterator().next().getKey();
 
+                    // IF key exists, increment count, else create new entry
                     if (currentStockMap.containsKey(key)) {
-                        System.out.println(key + ": KEY EXISTS ALREADY, INCREMENT COUNT!");
                         currentStockMap.put(key, currentStockMap.get(key) + currentStockEntry.get(key));
                     } else {
                         currentStockMap.put(key, currentStockEntry.get(key));
@@ -79,6 +168,7 @@ public class BrewService {
     }
 
     // TODO: This needs to simply return the map and another func will convert to Obj and tally counts
+    // TODO: Re-think returning map of unknown or filter those out of final result later.
     private Map<String, Integer> currentStockEntry(String entry) {
         BrewType brewType = brewType(entry);
 
@@ -138,7 +228,6 @@ public class BrewService {
 
     private int convertQuantityStr(String quantityStr) {
         String quantityToLower = quantityStr.toLowerCase();
-        System.out.println(quantityToLower);
         int quantity = switch (quantityToLower) {
             case "one" -> 1;
             case "two" -> 2;
