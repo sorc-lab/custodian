@@ -1,49 +1,36 @@
-1)  4       Many Green Magic Potions (23)
-2)  4       Many Green Cold Potions (22)
-3)  4       Many Green Acid Potions (23)
-4)  4       Many Green Poison Potions (23)
-5)  4       Many Green Psionic Potions (23)
-6)  4       Many Green Fire Potions (23)
-7)  4       Many Green Sharp Potions (23)
-8)  4       Many Green Blunt Potions (23)
-9)  4       Many Green Pierce Potions (23)
-10)  4       Many Green Electricity Potions (22)
-11)  4       Many Potions of Restore Water (25)
-12)  4       Many Potions of Restore Water (25)
-13)  4       Many Potions of Restore Water (25)
-14)  4       Many Potions of Restore Water (25)
-15)  4       Many Pink Potions (25)
-16)  4       Many Pink Potions (25)
-17)  4       Many Pink Potions (25)
-18)  4       Many Pink Potions (25)
-19)  4       Many Magenta Potions (25)
-20)  4       Many Magenta Potions (25)
-Shop Listing From 0 to 24 of 52 (46%) - q to quit.
-21)  4       Many Magenta Potions (25)
-22)  4       Many Magenta Potions (25)
-23)  4       Many Violet Potions (25)
-24)  4       Many Violet Potions (25)
-25)  4       Fifteen Violet Potions
-26)  4       Many Potions of True Cure Water (25)
-27)  4       Many Potions of True Cure Water (25)
-28)  4       Many Potions of True Cure Water (25)
-29)  4       Many Potions of True Cure Water (25)
-30)  4       Many Cyan Potions (25)
-31)  4       Many Cyan Potions (25)
-32)  4       Many Cyan Potions (25)
-33)  4       Many Cyan Potions (25)
-34)  4       Many Cyan Potions (25)
-35)  4       Many Cyan Potions (25)
-36)  4       Many Cyan Potions (25)
-37)  4       Many Cyan Potions (25)
-38)  4       Many Cyan Potions (25)
-39)  4       Many Cyan Potions (25)
-40)  4       Sixteen Cyan Potions
-41)  4       Many Yellow Potions (25)
-42)  4       Many Yellow Potions (25)
-43)  4       Many Mana Potions (25)
-44)  4       Many Mana Potions (25)
-Shop Listing From 24 to 48 of 52 (92%) - q to quit.
-45)  4       Many Mana Potions (25)
-46)  4       Many Mana Potions (25)
-47)  4       Three Mana Potions
+1)  4       Eighteen Green Magic Potions
+2)  4       Seventeen Green Cold Potions
+3)  4       Eighteen Green Acid Potions
+4)  4       Eighteen Green Poison Potions
+5)  4       Eighteen Green Psionic Potions
+6)  4       Eighteen Green Fire Potions
+7)  4       Eighteen Green Sharp Potions
+8)  4       Eighteen Green Blunt Potions
+9)  4       Eighteen Green Pierce Potions
+10)  4       Seventeen Green Electricity Potions
+11)  4       Many Magenta Potions (25)
+12)  4       Eighteen Magenta Potions
+13)  4       Many Magenta Potions (25)
+14)  4       Many Magenta Potions (25)
+15)  4       Thirteen Violet Potions
+16)  4       Fifteen Violet Potions
+17)  4       Many Cyan Potions (25)
+18)  4       Many Cyan Potions (25)
+19)  4       Many Cyan Potions (25)
+20)  4       Many Cyan Potions (25)
+Shop Listing From 0 to 24 of 40 (60%) - q to quit.
+21)  4       Many Cyan Potions (25)
+22)  4       Many Cyan Potions (25)
+23)  4       Many Cyan Potions (25)
+24)  4       Many Cyan Potions (25)
+25)  4       Many Cyan Potions (25)
+26)  4       Many Cyan Potions (25)
+27)  4       Sixteen Cyan Potions
+28)  4       Many Mana Potions (25)
+29)  4       Many Mana Potions (25)
+30)  4       Many Mana Potions (25)
+31)  4       Many Mana Potions (25)
+32)  4       Many Orange Potions (25)
+33)  4       Many Orange Potions (25)
+34)  4       Many Orange Potions (25)
+35)  4       Many Orange Potions (25)

@@ -1,7 +1,5 @@
 package com.sorclab.custodian.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorclab.custodian.config.BrewConfig;
 import com.sorclab.custodian.config.BrewType;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +10,11 @@ import org.springframework.util.StringUtils;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 // TODO: Logic is a mess. Finish prototype, write tests, then refactor.
+// TODO: Figure out how to update current_stock.txt at runtime. Requires reboot to pickup changes.
 
 @Service
 @RequiredArgsConstructor
@@ -197,7 +193,7 @@ public class BrewService {
                         .filter(brewType -> brewType.getValue().equalsIgnoreCase(value))
                         .findFirst()
                         .orElse(null)) // Map each value to a matching BrewType, if any
-                .filter(brewType -> brewType != null) // Ignore nulls (no match)
+                .filter(Objects::nonNull) // Ignore nulls (no match)
                 .findFirst() // Get the first match
                 .orElse(null); // Return null if no match found
     }
@@ -221,14 +217,24 @@ public class BrewService {
                 .filter(s -> s != null && !s.isEmpty())
                 .toList();
 
-        String quantityStr = entrySplit.get(2);
+        // Example of reading stock as store owner vs. regular customer. Account for both readings.
+        // 25)  4       4       Many Cyan Potions (25)
+        // OR
+        // 25)  4       Many Cyan Potions (25)
+        // Find which element holds the quantity str, i.e. the "Many" keyword, or str quantity val.
+        // Quantity str defaults to elem 3. TRY elem 2 is int, if not, then that elem has the quantity.
+        String quantityStr = entrySplit.get(3);
+        try {
+            Integer.parseInt(entrySplit.get(2));
+        } catch (NumberFormatException ex) {
+            quantityStr = entrySplit.get(2);
+        }
 
         return convertQuantityStr(quantityStr);
     }
 
     private int convertQuantityStr(String quantityStr) {
-        String quantityToLower = quantityStr.toLowerCase();
-        int quantity = switch (quantityToLower) {
+        int quantity = switch (quantityStr.toLowerCase()) {
             case "one" -> 1;
             case "two" -> 2;
             case "three" -> 3;
