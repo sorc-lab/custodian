@@ -1,36 +1,36 @@
-1)  4       Eighteen Green Magic Potions
-2)  4       Seventeen Green Cold Potions
-3)  4       Eighteen Green Acid Potions
-4)  4       Eighteen Green Poison Potions
-5)  4       Eighteen Green Psionic Potions
-6)  4       Eighteen Green Fire Potions
-7)  4       Eighteen Green Sharp Potions
-8)  4       Eighteen Green Blunt Potions
-9)  4       Eighteen Green Pierce Potions
-10)  4       Seventeen Green Electricity Potions
-11)  4       Many Magenta Potions (25)
-12)  4       Eighteen Magenta Potions
-13)  4       Many Magenta Potions (25)
-14)  4       Many Magenta Potions (25)
-15)  4       Thirteen Violet Potions
-16)  4       Fifteen Violet Potions
-17)  4       Many Cyan Potions (25)
-18)  4       Many Cyan Potions (25)
-19)  4       Many Cyan Potions (25)
-20)  4       Many Cyan Potions (25)
+1)  4       4       Seventeen Green Magic Potions
+2)  4       4       Sixteen Green Cold Potions
+3)  4       4       Seventeen Green Acid Potions
+4)  4       4       Seventeen Green Poison Potions
+5)  4       4       Seventeen Green Psionic Potions
+6)  4       4       Seventeen Green Fire Potions
+7)  4       4       Seventeen Green Sharp Potions
+8)  4       4       Seventeen Green Blunt Potions
+9)  4       4       Seventeen Green Pierce Potions
+10)  4       4       Sixteen Green Electricity Potions
+11)  4       4       Many Magenta Potions (25)
+12)  4       4       Eleven Magenta Potions
+13)  4       4       Many Magenta Potions (25)
+14)  4       4       Many Magenta Potions (25)
+15)  4       4       Six Violet Potions
+16)  4       4       Violet Potion
+17)  4       4       Many Cyan Potions (25)
+18)  4       4       Many Cyan Potions (25)
+19)  4       4       Many Cyan Potions (25)
+20)  4       4       Many Cyan Potions (25)
 Shop Listing From 0 to 24 of 40 (60%) - q to quit.
-21)  4       Many Cyan Potions (25)
-22)  4       Many Cyan Potions (25)
-23)  4       Many Cyan Potions (25)
-24)  4       Many Cyan Potions (25)
-25)  4       Many Cyan Potions (25)
-26)  4       Many Cyan Potions (25)
-27)  4       Sixteen Cyan Potions
-28)  4       Many Mana Potions (25)
-29)  4       Many Mana Potions (25)
-30)  4       Many Mana Potions (25)
-31)  4       Many Mana Potions (25)
-32)  4       Many Orange Potions (25)
-33)  4       Many Orange Potions (25)
-34)  4       Many Orange Potions (25)
-35)  4       Many Orange Potions (25)
+21)  4       4       Many Cyan Potions (25)
+22)  4       4       Many Cyan Potions (25)
+23)  4       4       Many Cyan Potions (25)
+24)  4       4       Many Cyan Potions (25)
+25)  4       4       Many Cyan Potions (25)
+26)  4       4       Many Cyan Potions (25)
+27)  4       4       Sixteen Cyan Potions
+28)  4       4       Many Mana Potions (25)
+29)  4       4       Many Mana Potions (25)
+30)  4       4       Many Mana Potions (25)
+31)  4       4       Many Mana Potions (25)
+32)  4       4       Many Orange Potions (24)
+33)  4       4       Many Orange Potions (25)
+34)  4       4       Many Orange Potions (25)
+35)  4       4       Many Orange Potions (25)

@@ -258,9 +258,12 @@ public class BrewService {
             default -> 0;
         };
 
-        if (quantity == 0) {
-            throw new RuntimeException("Failed to convert quantity String to Integer.");
-        }
+        // TODO: This throws ex and shouldn't if item quantity is 1, or item stock is a armour, etc.
+        // NOTE: Easy fix may be to just default to 1! Also, converting string "one" to 1 never happens.
+//        if (quantity == 0) {
+//            String msg = String.format("Failed to convert quantity (%s) String to Integer.", quantityStr);
+//            throw new RuntimeException(msg);
+//        }
 
         return quantity;
     }
