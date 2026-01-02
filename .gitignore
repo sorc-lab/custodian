@@ -38,3 +38,5 @@ spring-shell.log
 ### custodian ###
 server/data
 /data
+cport/tasks.tsv
+cport/*.exe
