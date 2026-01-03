@@ -9,6 +9,7 @@
     - view 12 (view full details of a specific task by id)
     - done 12 (marks a task (by id) as completed)
 */
+// TODO: Task.c and Task.h are case insensitive in git diff. Fix it.
 void main(int argc, char* argv[]) {
     cmd_handler(argc, argv);
 }
