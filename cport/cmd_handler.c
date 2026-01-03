@@ -27,8 +27,8 @@ void cmd_handler(int argc, char* argv[]) {
         }
     }
 
-    // TODO: Dump --help info here vs. unknown cmd msg. Move into cmd handler src file.
     fprintf(stderr, "Unknown command: %s\n", cmd_name);
+    cmd_help(argc, argv);
     exit(EXIT_FAILURE);
 }
 
