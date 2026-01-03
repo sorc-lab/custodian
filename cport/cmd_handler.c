@@ -8,6 +8,7 @@ cmd_t cli_commands[] = {
     {"add", "add <description> <days>", cmd_add},
     {"rm", "rm <id>", cmd_rm},
     {"ls", "ls", cmd_ls},
+    {"help", "help", cmd_help},
     {NULL, NULL, NULL}
 };
 
@@ -26,8 +27,8 @@ void cmd_handler(int argc, char* argv[]) {
         }
     }
 
-    // TODO: Dump --help info here vs. unknown cmd msg. Move into cmd handler src file.
     fprintf(stderr, "Unknown command: %s\n", cmd_name);
+    cmd_help(argc, argv);
     exit(EXIT_FAILURE);
 }
 
@@ -45,4 +46,37 @@ static void cmd_rm(int argc, char* argv[]) {
 
 static void cmd_ls(int argc, char* argv[]) {
     printf("ls not implemented yet\n");
+}
+
+static void cmd_help(int argc, char* argv[]) {
+    (void)argc;
+    (void)argv;
+
+    printf(
+        "custodian - task management CLI\n\n"
+        "USAGE\n"
+        "    custodian <command> [options]\n\n"
+        "COMMANDS\n"
+        "    add <description> <days>\n"
+        "        Add a new task with the given description and number of days\n"
+        "        until the task expires.\n\n"
+        "    rm <id>\n"
+        "        Remove a task by its numeric ID.\n\n"
+        "    ls\n"
+        "        List all tasks.\n\n"
+        "    view <id>\n"
+        "        Display full details for a specific task.\n\n"
+        "    done <id>\n"
+        "        Mark a task as completed.\n\n"
+        "EXAMPLES\n"
+        "    custodian add \"Wipe kitchen floors\" 7\n"
+        "    custodian ls\n"
+        "    custodian view 3\n"
+        "    custodian done 3\n"
+        "    custodian rm 3\n\n"
+        "EXIT STATUS\n"
+        "    0   Success\n"
+        "    1   General error\n"
+        "    2   Invalid usage\n"
+    );
 }
