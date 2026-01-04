@@ -41,7 +41,11 @@ static void cmd_add(int argc, char* argv[]) {
 }
 
 static void cmd_rm(int argc, char* argv[]) {
-    printf("rm not implemented yet\n");
+    if (argc < 2) {
+        fprintf(stderr, "Usage: rm <id>\n");
+        exit(EXIT_FAILURE);
+    }
+    task_delete_by_id(atoi(argv[1]));
 }
 
 static void cmd_ls(int argc, char* argv[]) {
