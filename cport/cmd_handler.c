@@ -7,6 +7,7 @@
 cmd_t cli_commands[] = {
     {"add", "add <description> <days>", cmd_add},
     {"rm", "rm <id>", cmd_rm},
+    {"done", "done <id>", cmd_done},
     {"ls", "ls", cmd_ls},
     {"help", "help", cmd_help},
     {NULL, NULL, NULL}
@@ -48,6 +49,14 @@ static void cmd_rm(int argc, char* argv[]) {
     task_delete_by_id(atoi(argv[1]));
 }
 
+static void cmd_done(int argc, char* argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: done <id>\n");
+        exit(EXIT_FAILURE);
+    }
+    task_set_is_done(atoi(argv[1]));
+}
+
 static void cmd_ls(int argc, char* argv[]) {
     printf("ls not implemented yet\n");
 }
@@ -66,6 +75,8 @@ static void cmd_help(int argc, char* argv[]) {
         "        until the task expires.\n\n"
         "    rm <id>\n"
         "        Remove a task by its numeric ID.\n\n"
+        "    done <id>\n"
+        "       Set task is_done to true.\n\n"
         "    ls\n"
         "        List all tasks.\n\n"
         "    view <id>\n"

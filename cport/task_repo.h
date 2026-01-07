@@ -6,7 +6,10 @@
 
 void task_save(task_t* task);
 void task_delete_by_id(long target_id);
+void task_set_is_done(long id);
+
 static FILE* task_read_db();
 static long task_gen_seq_id();
+static task_t* task_find_by_id(long target_id);
 
 #endif

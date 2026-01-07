@@ -1,10 +1,10 @@
 #include "task_repo.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define DB "tasks.tsv"
 #define TMP_DB "tasks.tmp"
-
 #define MAX_LINE_SIZE 1024
 
 void task_save(task_t* task) {
@@ -68,6 +68,56 @@ void task_delete_by_id(long target_id) {
         fprintf(stderr, "Failed to replicate Task database.\n");
         exit(EXIT_FAILURE);
     }
+}
+
+/*
+public void completeTaskById(long id) {
+        Task task = taskRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No task found for id: " + id));
+
+        task.setComplete(true);
+        task.setUpdatedAt(LocalDateTime.now());
+        task.setExpirationDate(task.getUpdatedAt().plusDays(task.getTimerDurationDays()));
+
+        taskRepo.save(task);
+    }
+*/
+void task_set_is_done(long id) {
+    task_t* task = task_find_by_id(id);
+
+    // TODO: REMOVE AFTER PROTOTYPING
+    printf("Found Task by ID: %ld\n", id);
+    printf("ID: %ld\n", task->id);
+    printf("desc: %s\n", task->desc);
+    printf("timer: %d\n", task->timer);
+    printf("is_done: %s\n", (task->is_done) ? "true" : "false");
+}
+
+static task_t* task_find_by_id(long target_id) {
+    FILE* db = task_read_db();
+    char line[MAX_LINE_SIZE];
+
+    while (fgets(line, sizeof(line), db)) {
+        long id = 0;
+        int days = 0;
+        char desc[256];
+        char is_done_str[8];
+
+        // `%255[^\t]` read description up to tab (safe!)
+        int parsed = sscanf(line, "%ld\t%255[^\t]\t%d\t%7s", &id, desc, &days, is_done_str);
+        if (parsed == 4 && id == target_id) {
+            bool is_done = (strcmp(is_done_str, "true") == 0);
+            fclose(db);
+
+            task_t* task = task_init(desc, days, is_done);
+            task->id = target_id;
+            return task;
+        }
+    }
+
+    fclose(db);
+    fprintf(stderr, "Failed to find Task by ID: %ld.\n", target_id);
+    exit(EXIT_FAILURE);
 }
 
 static FILE* task_read_db() {
