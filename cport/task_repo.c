@@ -17,15 +17,15 @@ void task_save(task_t* task) {
         exit(EXIT_FAILURE);
     }
 
-    fprintf(fp, "%ld\t%s\t%d\t%s\n",
+    fprintf(fp, "%ld\t%s\t%d\t%s\t%ld\n",
         task_gen_seq_id(),
-        (task->desc) ? task->desc : "",
-        task->timer,
-        (task->is_done) ? "true" : "false"
+        task->desc,
+        task->timer_days,
+        "false",
+        (long) task->updated_at
     );
 
-    printf("Task %ld added: %s (%d days)\n", task->id, task->desc, task->timer);
-    task_destroy(task);
+    printf("Task %ld added: %s (%d days)\n", task->id, task->desc, task->timer_days);
     fclose(fp);
 }
 
@@ -71,39 +71,27 @@ void task_delete_by_id(long target_id) {
     }
 }
 
-/*
-public void completeTaskById(long id) {
-        Task task = taskRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No task found for id: " + id));
-
-        task.setComplete(true);
-        task.setUpdatedAt(LocalDateTime.now());
-        task.setExpirationDate(task.getUpdatedAt().plusDays(task.getTimerDurationDays()));
-
-        taskRepo.save(task);
-    }
-*/
 void task_set_is_done(long id) {
     task_t* task = task_find_by_id(id);
-
-    // TODO: After update prototype working, set updated_at & set expiration etc, here.
-    // NOTE: These fields will need to be set w/ defaults in the task_add and display code, etc.
     task->is_done = true;
+    task->updated_at = time(NULL);
     task_update(task);
+}
 
-
-    // TODO: Time in seconds since UNIX epoch.
-    time_t now = time(NULL);
-    printf("Current time: %d\n", now);
+// TODO: Move out of task_repo.c. For display use only!
+// NOTE: This doesn't work yet. Returns addr of local var timestamp and not a usable str, but this
+//      code works if you can figure out how to return the str.
+static char* timestamp(time_t epoch_time) {
+    char buf[64];
+    struct tm* tm = localtime(&epoch_time);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm);
+    
+    // char timestamp[] = sprintf("%s", buf);
+    // return timestamp;
+    return NULL;
 }
 
 static void task_update(task_t* task) {
-    // TODO: REMOVE AFTER PROTOTYPING
-    printf("ID: %ld\n", task->id);
-    printf("desc: %s\n", task->desc);
-    printf("timer: %d\n", task->timer);
-    printf("is_done: %s\n", (task->is_done) ? "true" : "false");
-
     // TODO: Introduces duplicate code in task_delete_by_id func.
     // NOTE: Many lines here are duplicated. Figure out a good func handler for this boilerplate.
     // NOTE: Pattern might not make sense bc it would need to return a struct basically for db update setup.
@@ -124,11 +112,12 @@ static void task_update(task_t* task) {
         long id = 0;
         if (sscanf(line, "%ld", &id) == 1 && id == task->id) {
             found = true;
-            fprintf(tmp_db, "%ld\t%s\t%d\t%s\n",
+            fprintf(tmp_db, "%ld\t%s\t%d\t%s\t%ld\n",
                 task->id,
                 task->desc,
-                task->timer,
-                (task->is_done) ? "true" : "false"
+                task->timer_days,
+                (task->is_done) ? "true" : "false",
+                task->updated_at
             );
             continue; // writes updated data for this record and can skip to next line in file
         }
@@ -165,15 +154,18 @@ static task_t* task_find_by_id(long target_id) {
         int days = 0;
         char desc[256];
         char is_done_str[8];
+        long updated_at;
 
         // `%255[^\t]` read description up to tab (safe!)
-        int parsed = sscanf(line, "%ld\t%255[^\t]\t%d\t%7s", &id, desc, &days, is_done_str);
+        int parsed = sscanf(line, "%ld\t%255[^\t]\t%d\t%7s", &id, desc, &days, is_done_str, updated_at);
         if (parsed == 4 && id == target_id) {
             bool is_done = (strcmp(is_done_str, "true") == 0);
             fclose(db);
 
-            task_t* task = task_init(desc, days, is_done);
+            task_t* task = task_init(desc, days);
             task->id = target_id;
+            task->is_done = is_done;
+            task->updated_at = (time_t) updated_at;
             return task;
         }
     }

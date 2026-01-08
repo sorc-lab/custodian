@@ -2,20 +2,17 @@
 #define TASK_H
 
 #include <stdbool.h>
+#include <time.h>
 
 typedef struct task {
     long id;
-    char* desc;  // dynamic len, but orig. was 80 chars
-    int timer; // duration in days until exp.
+    char* desc; // dynamic len, but orig. was 80 chars
+    int timer_days;
     bool is_done;
-
-    /*
-        private LocalDateTime updatedAt;
-        private LocalDateTime expirationDate;
-    */
+    time_t updated_at;
 } task_t;
 
-task_t* task_init(const char* desc, int timer, bool is_done);
+task_t* task_init(const char* desc, int timer_days);
 void task_destroy(task_t* task);
 
 #endif

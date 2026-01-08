@@ -38,7 +38,7 @@ static void cmd_add(int argc, char* argv[]) {
         fprintf(stderr, "Usage: add <description> <days>\n");
         exit(EXIT_FAILURE);
     }
-    task_save(task_init(argv[1], atoi(argv[2]), false));
+    task_save(task_init(argv[1], atoi(argv[2])));
 }
 
 static void cmd_rm(int argc, char* argv[]) {
