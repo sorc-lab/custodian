@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define DB "tasks.tsv"
 #define TMP_DB "tasks.tmp"
@@ -85,12 +86,74 @@ public void completeTaskById(long id) {
 void task_set_is_done(long id) {
     task_t* task = task_find_by_id(id);
 
+    // TODO: After update prototype working, set updated_at & set expiration etc, here.
+    // NOTE: These fields will need to be set w/ defaults in the task_add and display code, etc.
+    task->is_done = true;
+    task_update(task);
+
+
+    // TODO: Time in seconds since UNIX epoch.
+    time_t now = time(NULL);
+    printf("Current time: %d\n", now);
+}
+
+static void task_update(task_t* task) {
     // TODO: REMOVE AFTER PROTOTYPING
-    printf("Found Task by ID: %ld\n", id);
     printf("ID: %ld\n", task->id);
     printf("desc: %s\n", task->desc);
     printf("timer: %d\n", task->timer);
     printf("is_done: %s\n", (task->is_done) ? "true" : "false");
+
+    // TODO: Introduces duplicate code in task_delete_by_id func.
+    // NOTE: Many lines here are duplicated. Figure out a good func handler for this boilerplate.
+    // NOTE: Pattern might not make sense bc it would need to return a struct basically for db update setup.
+    // NOTE: May be best to just create func for returning file handler for tmp_db write access. task_write_tmp_db().
+    //          FILE* db_reader, FILE* tmp_db_writer vars holding the file handles.
+    FILE* db = task_read_db();
+    FILE* tmp_db = fopen(TMP_DB, "w");
+    if (!tmp_db) {
+        fclose(db);
+        fprintf(stderr, "Failed to open TEMP Task database for write.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char line[MAX_LINE_SIZE];
+    bool found = false;
+
+    while (fgets(line, sizeof(line), db)) {
+        long id = 0;
+        if (sscanf(line, "%ld", &id) == 1 && id == task->id) {
+            found = true;
+            fprintf(tmp_db, "%ld\t%s\t%d\t%s\n",
+                task->id,
+                task->desc,
+                task->timer,
+                (task->is_done) ? "true" : "false"
+            );
+            continue; // writes updated data for this record and can skip to next line in file
+        }
+        fputs(line, tmp_db);
+    }
+
+    // TODO: Again, this entire cleanup process is duplicate code w/ task_delete_by_id func.
+    fclose(db);
+    fclose(tmp_db);
+
+    if (!found) {
+        remove(TMP_DB);
+        fprintf(stderr, "Failed to delete. Could not find Task ID: %ld.\n", task->id);
+        exit(EXIT_FAILURE);
+    }
+
+    if (remove(DB) != 0) {
+        fprintf(stderr, "Failed to remove original Task database.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (rename(TMP_DB, DB) != 0) {
+        fprintf(stderr, "Failed to replicate Task database.\n");
+        exit(EXIT_FAILURE);
+    }
 }
 
 static task_t* task_find_by_id(long target_id) {
