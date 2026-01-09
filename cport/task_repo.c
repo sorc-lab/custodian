@@ -17,15 +17,16 @@ void task_save(task_t* task) {
         exit(EXIT_FAILURE);
     }
 
+    long id = task_gen_seq_id();
     fprintf(fp, "%ld\t%s\t%d\t%s\t%ld\n",
-        task_gen_seq_id(),
+        id,
         task->desc,
         task->timer_days,
         "false",
         (long) task->updated_at
     );
 
-    printf("Task %ld added: %s (%d days)\n", task->id, task->desc, task->timer_days);
+    printf("Task %ld added: %s (%d days)\n", id, task->desc, task->timer_days);
     fclose(fp);
 }
 
@@ -81,14 +82,11 @@ void task_set_is_done(long id) {
 // TODO: Move out of task_repo.c. For display use only!
 // NOTE: This doesn't work yet. Returns addr of local var timestamp and not a usable str, but this
 //      code works if you can figure out how to return the str.
-static char* timestamp(time_t epoch_time) {
+static void timestamp(time_t epoch_time) {
     char buf[64];
     struct tm* tm = localtime(&epoch_time);
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm);
-    
-    // char timestamp[] = sprintf("%s", buf);
-    // return timestamp;
-    return NULL;
+    printf("TIMESTAMP: %s\n", buf);
 }
 
 static void task_update(task_t* task) {
@@ -157,8 +155,14 @@ static task_t* task_find_by_id(long target_id) {
         long updated_at;
 
         // `%255[^\t]` read description up to tab (safe!)
-        int parsed = sscanf(line, "%ld\t%255[^\t]\t%d\t%7s", &id, desc, &days, is_done_str, updated_at);
-        if (parsed == 4 && id == target_id) {
+        int parsed = sscanf(line, "%ld\t%255[^\t]\t%d\t%7s\t%ld",
+            &id,
+            desc,
+            &days,
+            is_done_str,
+            &updated_at
+        );
+        if (parsed == 5 && id == target_id) { // check if parsed 5 elements & matches target_id
             bool is_done = (strcmp(is_done_str, "true") == 0);
             fclose(db);
 
