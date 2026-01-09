@@ -106,7 +106,7 @@ static void task_close_db_access(FILE* db_reader, FILE* tmp_db_writer, bool has_
 
     if (!has_task_match) {
         remove(TMP_DB);
-        fprintf(stderr, "Failed to delete. Could not find Task ID: %ld.\n", task_id);
+        fprintf(stderr, "Failed to find matching record for Task ID: %ld.\n", task_id);
         exit(EXIT_FAILURE);
     }
 
