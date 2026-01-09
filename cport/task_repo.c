@@ -25,15 +25,6 @@ void task_save(task_t* task) {
     fclose(db_appender);
 }
 
-static FILE* task_db_appender() {
-    FILE* appender = fopen(DB, "a");
-    if (!appender) {
-        fprintf(stderr, "Failed open Task database for append.\n");
-        exit(EXIT_FAILURE);
-    }
-    return appender;
-}
-
 // stream DB into TMP_DB, excluding the target_id record, then replicate orig. DB w/ tmp & cleanup
 void task_delete_by_id(long target_id) {
     FILE* db_reader = task_db_reader();
@@ -54,6 +45,51 @@ void task_delete_by_id(long target_id) {
     task_close_db_access(db_reader, tmp_db_writer, found, target_id);
 }
 
+void task_set_is_done(long id) {
+    task_t* task = task_find_by_id(id);
+    task->is_done = true;
+    task->updated_at = time(NULL);
+    task_update(task);
+}
+
+static FILE* task_db_appender() {
+    FILE* appender = fopen(DB, "a");
+    if (!appender) {
+        fprintf(stderr, "Failed open Task database for append.\n");
+        exit(EXIT_FAILURE);
+    }
+    return appender;
+}
+
+// generate sequential primary key id based on last generated
+static long task_gen_seq_id() {
+    FILE* db_reader = task_db_reader();
+
+    long last_id = 0;
+    char line[MAX_LINE_SIZE];
+
+    while (fgets(line, sizeof(line), db_reader)) {
+        long id = 0;
+        if (sscanf(line, "%ld", &id) == 1) {
+            if (id > last_id) {
+                last_id = id;
+            }
+        }
+    }
+
+    fclose(db_reader);
+    return last_id + 1;
+}
+
+static FILE* task_db_reader() {
+    FILE* reader = fopen(DB, "r");
+    if (!reader) {
+        fprintf(stderr, "Failed to open Task database for read.\n");
+        exit(EXIT_FAILURE);
+    }
+    return reader;
+}
+
 // requires db_reader as it should handle closing its file pointer access upon fail to open tmp_db
 static FILE* task_tmp_db_writer(FILE* db_reader) {
     FILE* writer = fopen(TMP_DB, "w");
@@ -62,47 +98,6 @@ static FILE* task_tmp_db_writer(FILE* db_reader) {
         fprintf(stderr, "Failed to open TEMP Task database for write.\n");
         exit(EXIT_FAILURE);
     }
-}
-
-void task_set_is_done(long id) {
-    task_t* task = task_find_by_id(id);
-    task->is_done = true;
-    task->updated_at = time(NULL);
-    task_update(task);
-}
-
-// TODO: Move out of task_repo.c. For display use only! Return str vs. void method.
-static void timestamp(time_t epoch_time) {
-    char buf[64];
-    struct tm* tm = localtime(&epoch_time);
-    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm);
-    printf("TIMESTAMP: %s\n", buf);
-}
-
-static void task_update(task_t* task) {
-    FILE* db_reader = task_db_reader();
-    FILE* tmp_db_writer = task_tmp_db_writer(db_reader);
-
-    char line[MAX_LINE_SIZE];
-    bool found = false;
-
-    while (fgets(line, sizeof(line), db_reader)) {
-        long id = 0;
-        if (sscanf(line, "%ld", &id) == 1 && id == task->id) {
-            found = true;
-            fprintf(tmp_db_writer, "%ld\t%s\t%d\t%s\t%ld\n",
-                task->id,
-                task->desc,
-                task->timer_days,
-                (task->is_done) ? "true" : "false",
-                task->updated_at
-            );
-            continue; // writes updated data for this record and can skip to next line in file
-        }
-        fputs(line, tmp_db_writer);
-    }
-
-    task_close_db_access(db_reader, tmp_db_writer, found, task->id);
 }
 
 static void task_close_db_access(FILE* db_reader, FILE* tmp_db_writer, bool has_task_match, long task_id) {
@@ -162,31 +157,36 @@ static task_t* task_find_by_id(long target_id) {
     exit(EXIT_FAILURE);
 }
 
-static FILE* task_db_reader() {
-    FILE* reader = fopen(DB, "r");
-    if (!reader) {
-        fprintf(stderr, "Failed to open Task database for read.\n");
-        exit(EXIT_FAILURE);
-    }
-    return reader;
-}
-
-// generate sequential primary key id based on last generated
-static long task_gen_seq_id() {
+static void task_update(task_t* task) {
     FILE* db_reader = task_db_reader();
+    FILE* tmp_db_writer = task_tmp_db_writer(db_reader);
 
-    long last_id = 0;
     char line[MAX_LINE_SIZE];
+    bool found = false;
 
     while (fgets(line, sizeof(line), db_reader)) {
         long id = 0;
-        if (sscanf(line, "%ld", &id) == 1) {
-            if (id > last_id) {
-                last_id = id;
-            }
+        if (sscanf(line, "%ld", &id) == 1 && id == task->id) {
+            found = true;
+            fprintf(tmp_db_writer, "%ld\t%s\t%d\t%s\t%ld\n",
+                task->id,
+                task->desc,
+                task->timer_days,
+                (task->is_done) ? "true" : "false",
+                task->updated_at
+            );
+            continue; // writes updated data for this record and can skip to next line in file
         }
+        fputs(line, tmp_db_writer);
     }
 
-    fclose(db_reader);
-    return last_id + 1;
+    task_close_db_access(db_reader, tmp_db_writer, found, task->id);
+}
+
+// TODO: Move out of task_repo.c. For display use only! Return str vs. void method.
+static void timestamp(time_t epoch_time) {
+    char buf[64];
+    struct tm* tm = localtime(&epoch_time);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm);
+    printf("TIMESTAMP: %s\n", buf);
 }

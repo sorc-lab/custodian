@@ -81,8 +81,6 @@ static void cmd_help(int argc, char* argv[]) {
         "        List all tasks.\n\n"
         "    view <id>\n"
         "        Display full details for a specific task.\n\n"
-        "    done <id>\n"
-        "        Mark a task as completed.\n\n"
         "EXAMPLES\n"
         "    custodian add \"Wipe kitchen floors\" 7\n"
         "    custodian ls\n"
