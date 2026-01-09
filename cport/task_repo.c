@@ -52,24 +52,7 @@ void task_delete_by_id(long target_id) {
         fputs(line, tmp_db);
     }
 
-    fclose(db);
-    fclose(tmp_db);
-
-    if (!found) {
-        remove(TMP_DB);
-        fprintf(stderr, "Failed to delete. Could not find Task ID: %ld.\n", target_id);
-        exit(EXIT_FAILURE);
-    }
-
-    if (remove(DB) != 0) {
-        fprintf(stderr, "Failed to remove original Task database.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (rename(TMP_DB, DB) != 0) {
-        fprintf(stderr, "Failed to replicate Task database.\n");
-        exit(EXIT_FAILURE);
-    }
+    task_close_db_access(db, tmp_db, found, target_id);
 }
 
 void task_set_is_done(long id) {
@@ -79,9 +62,7 @@ void task_set_is_done(long id) {
     task_update(task);
 }
 
-// TODO: Move out of task_repo.c. For display use only!
-// NOTE: This doesn't work yet. Returns addr of local var timestamp and not a usable str, but this
-//      code works if you can figure out how to return the str.
+// TODO: Move out of task_repo.c. For display use only! Return str vs. void method.
 static void timestamp(time_t epoch_time) {
     char buf[64];
     struct tm* tm = localtime(&epoch_time);
@@ -122,13 +103,16 @@ static void task_update(task_t* task) {
         fputs(line, tmp_db);
     }
 
-    // TODO: Again, this entire cleanup process is duplicate code w/ task_delete_by_id func.
+    task_close_db_access(db, tmp_db, found, task->id);
+}
+
+static void task_close_db_access(FILE* db, FILE* tmp_db, bool has_task_match, long task_id) {
     fclose(db);
     fclose(tmp_db);
 
-    if (!found) {
+    if (!has_task_match) {
         remove(TMP_DB);
-        fprintf(stderr, "Failed to delete. Could not find Task ID: %ld.\n", task->id);
+        fprintf(stderr, "Failed to delete. Could not find Task ID: %ld.\n", task_id);
         exit(EXIT_FAILURE);
     }
 
