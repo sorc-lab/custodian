@@ -4,15 +4,18 @@
 #include "task.h"
 #include <stdio.h>
 
+// TODO: Clean up ALL method orders as they are executed.
+
 void task_save(task_t* task);
 void task_delete_by_id(long target_id);
 void task_set_is_done(long id);
 
-static FILE* task_read_db();
+static FILE* task_db_reader();
 static long task_gen_seq_id();
 static void task_update(task_t* task);
 static task_t* task_find_by_id(long target_id);
 static void timestamp(time_t epoch_time);
 static void task_close_db_access(FILE* db, FILE* tmp_db, bool has_task_match, long task_id);
+static FILE* task_db_appender();
 
 #endif
