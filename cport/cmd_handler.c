@@ -7,6 +7,7 @@
 cmd_t cli_commands[] = {
     {"add", "add <description> <days>", cmd_add},
     {"rm", "rm <id>", cmd_rm},
+    {"done", "done <id>", cmd_done},
     {"ls", "ls", cmd_ls},
     {"help", "help", cmd_help},
     {NULL, NULL, NULL}
@@ -37,7 +38,7 @@ static void cmd_add(int argc, char* argv[]) {
         fprintf(stderr, "Usage: add <description> <days>\n");
         exit(EXIT_FAILURE);
     }
-    task_save(task_init(argv[1], atoi(argv[2]), false));
+    task_save(task_init(argv[1], atoi(argv[2])));
 }
 
 static void cmd_rm(int argc, char* argv[]) {
@@ -46,6 +47,14 @@ static void cmd_rm(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
     task_delete_by_id(atoi(argv[1]));
+}
+
+static void cmd_done(int argc, char* argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: done <id>\n");
+        exit(EXIT_FAILURE);
+    }
+    task_set_is_done(atoi(argv[1]));
 }
 
 static void cmd_ls(int argc, char* argv[]) {
@@ -66,12 +75,12 @@ static void cmd_help(int argc, char* argv[]) {
         "        until the task expires.\n\n"
         "    rm <id>\n"
         "        Remove a task by its numeric ID.\n\n"
+        "    done <id>\n"
+        "       Set task is_done to true.\n\n"
         "    ls\n"
         "        List all tasks.\n\n"
         "    view <id>\n"
         "        Display full details for a specific task.\n\n"
-        "    done <id>\n"
-        "        Mark a task as completed.\n\n"
         "EXAMPLES\n"
         "    custodian add \"Wipe kitchen floors\" 7\n"
         "    custodian ls\n"
