@@ -37,12 +37,7 @@ static FILE* task_db_appender() {
 // stream DB into TMP_DB, excluding the target_id record, then replicate orig. DB w/ tmp & cleanup
 void task_delete_by_id(long target_id) {
     FILE* db_reader = task_db_reader();
-    FILE* tmp_db = fopen(TMP_DB, "w");
-    if (!tmp_db) {
-        fclose(db_reader);
-        fprintf(stderr, "Failed to open TEMP Task database for write.\n");
-        exit(EXIT_FAILURE);
-    }
+    FILE* tmp_db_writer = task_tmp_db_writer(db_reader);
 
     char line[MAX_LINE_SIZE];
     bool found = false;
@@ -53,13 +48,21 @@ void task_delete_by_id(long target_id) {
             found = true;
             continue; // target to delete found, skip writing this record
         }
-        fputs(line, tmp_db);
+        fputs(line, tmp_db_writer);
     }
 
-    task_close_db_access(db_reader, tmp_db, found, target_id);
+    task_close_db_access(db_reader, tmp_db_writer, found, target_id);
 }
 
-// TOOD: static task_tmp_db_writer
+// requires db_reader as it should handle closing its file pointer access upon fail to open tmp_db
+static FILE* task_tmp_db_writer(FILE* db_reader) {
+    FILE* writer = fopen(TMP_DB, "w");
+    if (!writer) {
+        fclose(db_reader);
+        fprintf(stderr, "Failed to open TEMP Task database for write.\n");
+        exit(EXIT_FAILURE);
+    }
+}
 
 void task_set_is_done(long id) {
     task_t* task = task_find_by_id(id);
@@ -78,12 +81,7 @@ static void timestamp(time_t epoch_time) {
 
 static void task_update(task_t* task) {
     FILE* db_reader = task_db_reader();
-    FILE* tmp_db = fopen(TMP_DB, "w");
-    if (!tmp_db) {
-        fclose(db_reader);
-        fprintf(stderr, "Failed to open TEMP Task database for write.\n");
-        exit(EXIT_FAILURE);
-    }
+    FILE* tmp_db_writer = task_tmp_db_writer(db_reader);
 
     char line[MAX_LINE_SIZE];
     bool found = false;
@@ -92,7 +90,7 @@ static void task_update(task_t* task) {
         long id = 0;
         if (sscanf(line, "%ld", &id) == 1 && id == task->id) {
             found = true;
-            fprintf(tmp_db, "%ld\t%s\t%d\t%s\t%ld\n",
+            fprintf(tmp_db_writer, "%ld\t%s\t%d\t%s\t%ld\n",
                 task->id,
                 task->desc,
                 task->timer_days,
@@ -101,16 +99,15 @@ static void task_update(task_t* task) {
             );
             continue; // writes updated data for this record and can skip to next line in file
         }
-        fputs(line, tmp_db);
+        fputs(line, tmp_db_writer);
     }
 
-    task_close_db_access(db_reader, tmp_db, found, task->id);
+    task_close_db_access(db_reader, tmp_db_writer, found, task->id);
 }
 
-// TODO: Update func arg names once all db_reader and tmp_db_writer methds updated.
-static void task_close_db_access(FILE* db, FILE* tmp_db, bool has_task_match, long task_id) {
-    fclose(db);
-    fclose(tmp_db);
+static void task_close_db_access(FILE* db_reader, FILE* tmp_db_writer, bool has_task_match, long task_id) {
+    fclose(db_reader);
+    fclose(tmp_db_writer);
 
     if (!has_task_match) {
         remove(TMP_DB);

@@ -15,7 +15,8 @@ static long task_gen_seq_id();
 static void task_update(task_t* task);
 static task_t* task_find_by_id(long target_id);
 static void timestamp(time_t epoch_time);
-static void task_close_db_access(FILE* db, FILE* tmp_db, bool has_task_match, long task_id);
+static void task_close_db_access(FILE* db_reader, FILE* tmp_db_writer, bool has_task_match, long task_id);
 static FILE* task_db_appender();
+static FILE* task_tmp_db_writer(FILE* db_reader);
 
 #endif
