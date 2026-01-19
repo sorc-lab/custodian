@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "task_repo.h"
 #include <string.h>
+#include "test_task_repo.h"
 
 cmd_t cli_commands[] = {
     {"add", "add <description> <days>", cmd_add},
@@ -10,6 +11,7 @@ cmd_t cli_commands[] = {
     {"done", "done <id>", cmd_done},
     {"ls", "ls", cmd_ls},
     {"help", "help", cmd_help},
+    {"test", "test", cmd_test},
     {NULL, NULL, NULL}
 };
 
@@ -62,8 +64,8 @@ static void cmd_ls(int argc, char* argv[]) {
 }
 
 static void cmd_help(int argc, char* argv[]) {
-    (void)argc;
-    (void)argv;
+    (void) argc;
+    (void) argv;
 
     printf(
         "custodian - task management CLI\n\n"
@@ -81,15 +83,27 @@ static void cmd_help(int argc, char* argv[]) {
         "        List all tasks.\n\n"
         "    view <id>\n"
         "        Display full details for a specific task.\n\n"
+        "    test\n"
+        "        Run full test suite to verify application integrity.\n\n"
         "EXAMPLES\n"
         "    custodian add \"Wipe kitchen floors\" 7\n"
         "    custodian ls\n"
         "    custodian view 3\n"
         "    custodian done 3\n"
-        "    custodian rm 3\n\n"
+        "    custodian rm 3\n"
+        "    custodian test\n\n"
         "EXIT STATUS\n"
         "    0   Success\n"
         "    1   General error\n"
         "    2   Invalid usage\n"
     );
+}
+
+/* TODOS:
+    1. Create assert.h w/ #define'd assert utils
+    2. Import assert.h into test_task_repo.c & play with it. Look for good patterns.
+    3. Once asert patterns established, start writing e2e tests exercizing ALL task_repo funcs & logic branches.
+*/
+static void cmd_test(int argc, char* argv[]) {
+    test_task_repo_all();
 }

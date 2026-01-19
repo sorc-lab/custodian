@@ -3,9 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 
-#define DB "tasks.tsv"
-#define TMP_DB "tasks.tmp"
+bool test_mode = false;
+
+#define DB (test_mode ? "test_tasks.tsv" : "tasks.tsv")
+#define TMP_DB (test_mode ? "test_tasks.tmp" : "tasks.tmp")
+
 #define MAX_LINE_SIZE 1024
 
 void task_save(task_t* task) {

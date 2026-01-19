@@ -18,5 +18,6 @@ static void cmd_rm(int argc, char* argv[]);
 static void cmd_done(int argc, char* argv[]);
 static void cmd_ls(int argc, char* argv[]);
 static void cmd_help(int argc, char* argv[]);
+static void cmd_test(int argc, char* argv[]);
 
 #endif
