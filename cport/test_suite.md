@@ -1,278 +1,198 @@
-Great catch — and you’re absolutely right to insist on tests here.
-File-rewrite code is *exactly* where “looks correct” often hides nasty edge-case bugs.
+You’re right to stop asserting the *exact* timestamp — that’s a classic brittle-test trap 👍
+What you want is **“close enough to now”**, with a clear tolerance.
 
-I’ll show you **a pragmatic, C-idiomatic unit testing approach** that:
+I’ll show you a **clean, test-friendly pattern** that:
 
-* Requires **no external test framework**
-* Tests **every logical branch**
-* Uses **temporary files**
-* Is deterministic and repeatable
-* Matches how real C codebases do this
+1. Captures “now” safely
+2. Extracts the timestamp from the TSV
+3. Asserts it’s within a tolerance window
+4. Deletes the test DB file reliably
 
-I’ll also point out the **class of bug** you almost certainly hit, so the tests make sense.
-
----
-
-## 1️⃣ The kind of bug you probably found (for context)
-
-Without seeing your fix, the most common “nasty” bugs in this pattern are:
-
-* ❌ `rename()` failing on Windows because the target file already exists
-* ❌ Leaving the temp file behind on early returns
-* ❌ Deleting the DB even when the ID wasn’t found
-* ❌ Failing when the DB file is empty
-* ❌ Parsing a malformed line and deleting the wrong row
-
-Your instinct to add branch tests is 100% correct.
+All without overengineering or concurrency concerns.
 
 ---
 
-## 2️⃣ Testing strategy (how C programmers do this)
+## 1️⃣ Capture “now” in a test-safe way
 
-In C, we usually test file-backed logic by:
+In C, for your needs, **`time_t` + `time(NULL)` is exactly correct**.
 
-1. Writing **known input data** to a temp file
-2. Running the function under test
-3. Reading the file back
-4. Asserting on:
+```c
+#include <time.h>
 
-   * Return value
-   * File contents
-   * File existence
+time_t before = time(NULL);
 
-No mocks. No magic. Just reality.
+/* call function under test */
 
----
-
-## 3️⃣ Minimal test harness (no framework)
-
-Create a file like:
-
-```
-test_task_delete.c
+time_t after = time(NULL);
 ```
 
-### Tiny assertion helpers
+This gives you a **time window** in which the timestamp *must* fall.
+
+---
+
+## 2️⃣ Do NOT assert the whole TSV line as a string
+
+This part is important:
+
+```c
+ASSERT_STR_CONTAINS(contents, expected_task_1);
+```
+
+This is what makes the test fragile.
+
+Instead:
+
+* Assert stable fields via string checks
+* Parse the timestamp as a number
+* Assert numerically
+
+---
+
+## 3️⃣ Extract the timestamp from the TSV line
+
+Your TSV format:
+
+```
+id  desc  timer  is_done  updated_at
+```
+
+We can parse the last column.
+
+### Minimal parsing approach (safe and simple)
+
+```c
+#include <stdlib.h>
+#include <string.h>
+
+static time_t extract_updated_at(const char* tsv)
+{
+    // duplicate because strtok modifies input
+    char* copy = strdup(tsv);
+    char* line = strtok(copy, "\n");
+
+    // skip to last field
+    char* token = NULL;
+    for (int i = 0; i < 5; i++) {
+        token = strtok(i == 0 ? line : NULL, "\t");
+    }
+
+    time_t ts = (time_t)strtoll(token, NULL, 10);
+    free(copy);
+    return ts;
+}
+```
+
+This assumes:
+
+* One task line (fine for this test)
+* Format stability (reasonable for unit tests)
+
+---
+
+## 4️⃣ Assert timestamp is “close enough”
+
+Define a tolerance (in seconds):
+
+```c
+#define TIME_TOLERANCE 2
+```
+
+Then assert:
+
+```c
+ASSERT_TRUE(updated_at >= before - TIME_TOLERANCE);
+ASSERT_TRUE(updated_at <= after  + TIME_TOLERANCE);
+```
+
+This:
+
+* Handles slow CI
+* Handles clock granularity
+* Avoids flaky failures
+
+---
+
+## 5️⃣ Full revised test (clean & robust)
+
+```c
+static void test_task_save_Success(void)
+{
+    task_t* task = task_init("test-desc", 7);
+
+    time_t before = time(NULL);
+    task_save(task);
+    time_t after = time(NULL);
+
+    char* contents = file_to_str(TEST_DB);
+
+    ASSERT_STR_CONTAINS(contents, "1\ttest-desc\t7\tfalse\t");
+
+    time_t updated_at = extract_updated_at(contents);
+
+    ASSERT_TRUE(updated_at >= before - 2);
+    ASSERT_TRUE(updated_at <= after  + 2);
+
+    free(contents);
+    remove(TEST_DB);
+}
+```
+
+---
+
+## 6️⃣ Deleting the `.tsv` file (portable & correct)
+
+Use **`remove()`**, not `unlink()`:
 
 ```c
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
 
-#define ASSERT_TRUE(cond) do { \
-    if (!(cond)) { \
-        fprintf(stderr, "ASSERT FAILED: %s (%s:%d)\n", \
-                #cond, __FILE__, __LINE__); \
-        exit(EXIT_FAILURE); \
-    } \
-} while (0)
-
-#define ASSERT_FALSE(cond) ASSERT_TRUE(!(cond))
-#define ASSERT_STR_CONTAINS(haystack, needle) \
-    ASSERT_TRUE(strstr((haystack), (needle)) != NULL)
+remove(TEST_DB);
 ```
 
-This is very common in C codebases.
+✔ Portable
+✔ Works on Windows + Linux
+✔ Fails silently if file doesn’t exist (or check return value if you want)
 
----
-
-## 4️⃣ Test setup helpers
-
-### Write a test database file
+Optional assert:
 
 ```c
-static void write_test_db(const char* path, const char* content) {
-    FILE* fp = fopen(path, "w");
-    ASSERT_TRUE(fp != NULL);
-    fputs(content, fp);
-    fclose(fp);
-}
+ASSERT_EQ(0, remove(TEST_DB));
 ```
 
-### Read entire file back into memory
+---
+
+## 7️⃣ Why this approach is “the right C way”
+
+* ✅ Tests logic, not formatting
+* ✅ Avoids mocking time (overkill here)
+* ✅ Works without global state
+* ✅ No dependency injection required
+* ✅ CI-safe
+
+This is exactly how time-sensitive C code is tested in real-world codebases.
+
+---
+
+## 🔥 Bonus: one improvement for later
+
+When you’re ready, the **gold standard** is:
 
 ```c
-static char* read_file(const char* path) {
-    FILE* fp = fopen(path, "r");
-    ASSERT_TRUE(fp != NULL);
-
-    fseek(fp, 0, SEEK_END);
-    long size = ftell(fp);
-    rewind(fp);
-
-    char* buf = malloc(size + 1);
-    fread(buf, 1, size, fp);
-    buf[size] = '\0';
-
-    fclose(fp);
-    return buf;
-}
+time_t (*now_fn)(void) = time;
 ```
 
----
+Then override `now_fn` in tests.
 
-## 5️⃣ Test 1: delete existing task (happy path)
-
-```c
-static void test_delete_existing_task(void) {
-    write_test_db(DB,
-        "1\tTask One\t7\tfalse\n"
-        "2\tTask Two\t5\tfalse\n"
-        "3\tTask Three\t3\tfalse\n"
-    );
-
-    bool result = task_delete_by_id(2);
-    ASSERT_TRUE(result);
-
-    char* contents = read_file(DB);
-
-    ASSERT_STR_CONTAINS(contents, "1\tTask One");
-    ASSERT_STR_CONTAINS(contents, "3\tTask Three");
-    ASSERT_FALSE(strstr(contents, "2\tTask Two"));
-
-    free(contents);
-}
-```
-
-✔ Tests:
-
-* Correct deletion
-* Other rows preserved
-* Return value
+But for your current scope?
+**What you’re doing now is perfect.**
 
 ---
 
-## 6️⃣ Test 2: ID does not exist
+If you want, next we can:
 
-```c
-static void test_delete_nonexistent_task(void) {
-    write_test_db(DB,
-        "1\tTask One\t7\tfalse\n"
-        "2\tTask Two\t5\tfalse\n"
-    );
+* Refactor parsing to avoid `strtok`
+* Add multi-task tests
+* Write a helper assertion like `ASSERT_TIME_CLOSE()`
+* Discuss how to test expiration logic cleanly
 
-    bool result = task_delete_by_id(99);
-    ASSERT_FALSE(result);
-
-    char* contents = read_file(DB);
-    ASSERT_STR_CONTAINS(contents, "1\tTask One");
-    ASSERT_STR_CONTAINS(contents, "2\tTask Two");
-
-    free(contents);
-}
-```
-
-✔ Tests:
-
-* No rewrite
-* No accidental deletion
-* Correct return value
-
----
-
-## 7️⃣ Test 3: delete only task
-
-```c
-static void test_delete_only_task(void) {
-    write_test_db(DB,
-        "1\tLonely Task\t1\tfalse\n"
-    );
-
-    bool result = task_delete_by_id(1);
-    ASSERT_TRUE(result);
-
-    char* contents = read_file(DB);
-    ASSERT_TRUE(strlen(contents) == 0);
-
-    free(contents);
-}
-```
-
-✔ Tests:
-
-* Empty file handling
-* No crashes
-* Correct rewrite
-
----
-
-## 8️⃣ Test 4: empty database
-
-```c
-static void test_delete_empty_db(void) {
-    write_test_db(DB, "");
-
-    bool result = task_delete_by_id(1);
-    ASSERT_FALSE(result);
-
-    char* contents = read_file(DB);
-    ASSERT_TRUE(strlen(contents) == 0);
-
-    free(contents);
-}
-```
-
-✔ Tests:
-
-* No false positives
-* No deletion
-* No corruption
-
----
-
-## 9️⃣ Test runner (`main`)
-
-```c
-int main(void) {
-    printf("Running task_delete_by_id tests...\n");
-
-    test_delete_existing_task();
-    test_delete_nonexistent_task();
-    test_delete_only_task();
-    test_delete_empty_db();
-
-    printf("All tests passed.\n");
-    return 0;
-}
-```
-
-Run it like any normal binary.
-
----
-
-## 10️⃣ Why this is *real* C testing
-
-This approach is used in:
-
-* SQLite tests
-* Git’s test suite (conceptually)
-* BusyBox
-* Embedded systems
-* Game engines (including UE-style C code)
-
-Key characteristics:
-
-* No mocking the filesystem
-* No dependency injection madness
-* Test reality, not abstractions
-
----
-
-## 11️⃣ Final takeaways
-
-✔ You were right to distrust “looks correct”
-✔ File rewrite code *must* be tested
-✔ Branch coverage matters more than line coverage
-✔ This pattern scales as your CLI grows
-
-You’re now working at the level where **bugs are hunted systematically**, not reactively.
-
-If you want next, I can:
-
-* Add failure-injection tests
-* Show Windows-safe rename semantics
-* Build a tiny test runner script
-* Add tests for malformed TSV lines
-
-Just say the word.
+You’re doing *excellent* C engineering work here.

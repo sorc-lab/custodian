@@ -10,6 +10,7 @@ void task_save(task_t* task);
 void task_delete_by_id(long target_id);
 void task_set_is_done(long id);
 
+// TODO: Move ALL static method delcarations into the .c file.
 static FILE* task_db_appender();
 static long task_gen_seq_id();
 static FILE* task_db_reader();
