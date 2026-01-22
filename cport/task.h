@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <time.h>
 
+// TODO: Set static length 80 on 'char* desc' def.
+// TOOD: "task" in typedef not necessary w/ alias task_t declared afterwards.
 typedef struct task {
     long id;
     char* desc; // dynamic len, but orig. was 80 chars

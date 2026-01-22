@@ -35,7 +35,7 @@ void cmd_handler(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
 }
 
-static void cmd_add(int argc, char* argv[]) {
+void cmd_add(int argc, char* argv[]) {
     if (argc < 3) {
         fprintf(stderr, "Usage: add <description> <days>\n");
         exit(EXIT_FAILURE);
@@ -43,7 +43,7 @@ static void cmd_add(int argc, char* argv[]) {
     task_save(task_init(argv[1], atoi(argv[2])));
 }
 
-static void cmd_rm(int argc, char* argv[]) {
+void cmd_rm(int argc, char* argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Usage: rm <id>\n");
         exit(EXIT_FAILURE);
@@ -51,7 +51,7 @@ static void cmd_rm(int argc, char* argv[]) {
     task_delete_by_id(atoi(argv[1]));
 }
 
-static void cmd_done(int argc, char* argv[]) {
+void cmd_done(int argc, char* argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Usage: done <id>\n");
         exit(EXIT_FAILURE);
@@ -59,11 +59,13 @@ static void cmd_done(int argc, char* argv[]) {
     task_set_is_done(atoi(argv[1]));
 }
 
-static void cmd_ls(int argc, char* argv[]) {
+void cmd_ls(int argc, char* argv[]) {
+    (void) argc;
+    (void) argv;
     printf("ls not implemented yet\n");
 }
 
-static void cmd_help(int argc, char* argv[]) {
+void cmd_help(int argc, char* argv[]) {
     (void) argc;
     (void) argv;
 
@@ -99,11 +101,9 @@ static void cmd_help(int argc, char* argv[]) {
     );
 }
 
-/* TODOS:
-    1. Create assert.h w/ #define'd assert utils
-    2. Import assert.h into test_task_repo.c & play with it. Look for good patterns.
-    3. Once asert patterns established, start writing e2e tests exercizing ALL task_repo funcs & logic branches.
-*/
-static void cmd_test(int argc, char* argv[]) {
+// TODO: Remove args, unless "interface" requires it.
+void cmd_test(int argc, char* argv[]) {
+    (void) argc;
+    (void) argv;
     test_task_repo_all();
 }
