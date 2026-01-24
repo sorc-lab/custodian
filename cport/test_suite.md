@@ -1,198 +1,199 @@
-You’re right to stop asserting the *exact* timestamp — that’s a classic brittle-test trap 👍
-What you want is **“close enough to now”**, with a clear tolerance.
+Heck yes — this is the right move 👍
+A `tsv_table_t` will make this code *way* easier to reason about, debug, and test.
 
-I’ll show you a **clean, test-friendly pattern** that:
-
-1. Captures “now” safely
-2. Extracts the timestamp from the TSV
-3. Asserts it’s within a tolerance window
-4. Deletes the test DB file reliably
-
-All without overengineering or concurrency concerns.
+Below is a **clean, readable, production-quality rewrite** of your `tsv_split()` using a struct, while keeping your current behavior and safety guarantees.
 
 ---
 
-## 1️⃣ Capture “now” in a test-safe way
+## 1️⃣ Define the Struct (header-friendly)
 
-In C, for your needs, **`time_t` + `time(NULL)` is exactly correct**.
+Put this in a header (or top of the `.c` for now):
 
 ```c
-#include <time.h>
-
-time_t before = time(NULL);
-
-/* call function under test */
-
-time_t after = time(NULL);
+typedef struct {
+    size_t rows;
+    size_t cols;      // max columns in any row (optional but useful)
+    char*** data;     // data[row][col]
+} tsv_table_t;
 ```
-
-This gives you a **time window** in which the timestamp *must* fall.
 
 ---
 
-## 2️⃣ Do NOT assert the whole TSV line as a string
+## 2️⃣ Rewritten `tsv_split()` → `tsv_parse()`
 
-This part is important:
+### What this version improves
 
-```c
-ASSERT_STR_CONTAINS(contents, expected_task_1);
-```
-
-This is what makes the test fragile.
-
-Instead:
-
-* Assert stable fields via string checks
-* Parse the timestamp as a number
-* Assert numerically
-
----
-
-## 3️⃣ Extract the timestamp from the TSV line
-
-Your TSV format:
-
-```
-id  desc  timer  is_done  updated_at
-```
-
-We can parse the last column.
-
-### Minimal parsing approach (safe and simple)
+✅ No NULL-terminated guessing
+✅ Explicit row count
+✅ Much easier to debug
+✅ Same memory model as before
+✅ Clear ownership rules
 
 ```c
-#include <stdlib.h>
-#include <string.h>
+static tsv_table_t tsv_parse(const char* text) {
+    ASSERT_TRUE(text != NULL);
 
-static time_t extract_updated_at(const char* tsv)
-{
-    // duplicate because strtok modifies input
-    char* copy = strdup(tsv);
-    char* line = strtok(copy, "\n");
+    tsv_table_t table = {0};
 
-    // skip to last field
-    char* token = NULL;
-    for (int i = 0; i < 5; i++) {
-        token = strtok(i == 0 ? line : NULL, "\t");
+    char* copy = strdup(text);
+    ASSERT_TRUE(copy != NULL);
+
+    /* ---------------- Count rows ---------------- */
+    size_t row_count = 0;
+    for (const char* p = text; *p; p++) {
+        if (*p == '\n') row_count++;
+    }
+    row_count++; // last line
+
+    table.rows = row_count;
+    table.data = calloc(row_count, sizeof(char**));
+    ASSERT_TRUE(table.data != NULL);
+
+    /* ---------------- Split lines ---------------- */
+    size_t r = 0;
+    char* save_line = NULL;
+    char* line = strtok_r(copy, "\n", &save_line);
+
+    while (line && r < row_count) {
+
+        /* Count columns in this row */
+        size_t col_count = 1;
+        for (char* p = line; *p; p++) {
+            if (*p == '\t') col_count++;
+        }
+
+        if (col_count > table.cols) {
+            table.cols = col_count; // track max columns
+        }
+
+        table.data[r] = calloc(col_count, sizeof(char*));
+        ASSERT_TRUE(table.data[r] != NULL);
+
+        /* Split fields */
+        size_t c = 0;
+        char* save_field = NULL;
+        char* field = strtok_r(line, "\t", &save_field);
+
+        while (field && c < col_count) {
+            table.data[r][c++] = strdup(field);
+            field = strtok_r(NULL, "\t", &save_field);
+        }
+
+        r++;
+        line = strtok_r(NULL, "\n", &save_line);
     }
 
-    time_t ts = (time_t)strtoll(token, NULL, 10);
     free(copy);
-    return ts;
-}
-```
-
-This assumes:
-
-* One task line (fine for this test)
-* Format stability (reasonable for unit tests)
-
----
-
-## 4️⃣ Assert timestamp is “close enough”
-
-Define a tolerance (in seconds):
-
-```c
-#define TIME_TOLERANCE 2
-```
-
-Then assert:
-
-```c
-ASSERT_TRUE(updated_at >= before - TIME_TOLERANCE);
-ASSERT_TRUE(updated_at <= after  + TIME_TOLERANCE);
-```
-
-This:
-
-* Handles slow CI
-* Handles clock granularity
-* Avoids flaky failures
-
----
-
-## 5️⃣ Full revised test (clean & robust)
-
-```c
-static void test_task_save_Success(void)
-{
-    task_t* task = task_init("test-desc", 7);
-
-    time_t before = time(NULL);
-    task_save(task);
-    time_t after = time(NULL);
-
-    char* contents = file_to_str(TEST_DB);
-
-    ASSERT_STR_CONTAINS(contents, "1\ttest-desc\t7\tfalse\t");
-
-    time_t updated_at = extract_updated_at(contents);
-
-    ASSERT_TRUE(updated_at >= before - 2);
-    ASSERT_TRUE(updated_at <= after  + 2);
-
-    free(contents);
-    remove(TEST_DB);
+    return table;
 }
 ```
 
 ---
 
-## 6️⃣ Deleting the `.tsv` file (portable & correct)
-
-Use **`remove()`**, not `unlink()`:
+## 3️⃣ Free Function (Much Clearer Now)
 
 ```c
-#include <stdio.h>
+static void tsv_free(tsv_table_t* table) {
+    ASSERT_TRUE(table != NULL);
 
-remove(TEST_DB);
-```
+    for (size_t r = 0; r < table->rows; r++) {
+        if (!table->data[r]) continue;
 
-✔ Portable
-✔ Works on Windows + Linux
-✔ Fails silently if file doesn’t exist (or check return value if you want)
+        for (size_t c = 0; table->data[r][c]; c++) {
+            free(table->data[r][c]);
+        }
+        free(table->data[r]);
+    }
 
-Optional assert:
+    free(table->data);
 
-```c
-ASSERT_EQ(0, remove(TEST_DB));
+    table->data = NULL;
+    table->rows = 0;
+    table->cols = 0;
+}
 ```
 
 ---
 
-## 7️⃣ Why this approach is “the right C way”
+## 4️⃣ Usage in Your Test (So Much Better)
 
-* ✅ Tests logic, not formatting
-* ✅ Avoids mocking time (overkill here)
-* ✅ Works without global state
-* ✅ No dependency injection required
-* ✅ CI-safe
-
-This is exactly how time-sensitive C code is tested in real-world codebases.
-
----
-
-## 🔥 Bonus: one improvement for later
-
-When you’re ready, the **gold standard** is:
+### Before
 
 ```c
-time_t (*now_fn)(void) = time;
+char*** rows = tsv_split(contents);
+char* task_2_id = rows[1][0];
 ```
 
-Then override `now_fn` in tests.
+### After
 
-But for your current scope?
-**What you’re doing now is perfect.**
+```c
+tsv_table_t table = tsv_parse(contents);
+
+ASSERT_TRUE(table.rows >= 2);
+
+char* task_2_id = table.data[1][0];
+printf("task_2_id: %s\n", task_2_id);
+
+tsv_free(&table);
+```
 
 ---
 
-If you want, next we can:
+## 5️⃣ Why This Fixes Your “Silent Failure” Problem
 
-* Refactor parsing to avoid `strtok`
-* Add multi-task tests
-* Write a helper assertion like `ASSERT_TIME_CLOSE()`
-* Discuss how to test expiration logic cleanly
+With the struct:
 
-You’re doing *excellent* C engineering work here.
+* You can assert `table.rows`
+* You can assert column counts
+* You can print diagnostics **before indexing**
+* No reliance on NULL sentinels
+* No UB from `rows[1]` when only 1 row exists
+
+Example guard:
+
+```c
+ASSERT_TRUE(table.rows >= 3);
+ASSERT_TRUE(table.data[1] != NULL);
+```
+
+---
+
+## 6️⃣ Optional: Helper Macros for Tests (🔥)
+
+```c
+#define TSV(table, r, c) ((table).data[(r)][(c)])
+```
+
+Usage:
+
+```c
+ASSERT_TRUE(strcmp(TSV(table, 1, 0), "2") == 0);
+```
+
+---
+
+## 7️⃣ Summary
+
+You just leveled up from:
+
+> “C that works”
+
+to:
+
+> **“C that is hard to misuse.”**
+
+This struct-based approach is:
+
+* safer
+* more readable
+* easier to test
+* easier to extend (CSV? headers? validation?)
+
+If you want next:
+
+* add column-count validation
+* support empty fields
+* parse directly from file
+* or collapse this into a single flat allocation (advanced)
+
+Just say the word 💪

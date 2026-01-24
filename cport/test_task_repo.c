@@ -91,6 +91,18 @@ static void task_save_Success(void) {
     //remove(TEST_DB);
 }
 
+/* 2D Array of Strings:
+char*** table
+   |
+   +--> char** row 0
+   |       |
+   |       +--> char* "1"
+   |       +--> char* "test-desc-1"
+   |
+   +--> char** row 1
+           |
+           +--> char* "2"
+*/
 static char*** tsv_split(const char* text) {
     char* copy = strdup(text);
     ASSERT_TRUE(copy != NULL);
