@@ -8,8 +8,8 @@
 #define TIME_TOLERANCE 2
 
 static void task_save_Success(void);
-static char*** tsv_split(const char* text);
-static void tsv_free(char*** table);
+static tsv_table_t tsv_parse(const char* text);
+static void tsv_free(tsv_table_t* table);
 static char* file_to_str(const char* path);
 
 // TODO: Rename to run_all or something.
@@ -27,34 +27,28 @@ static void task_save_Success(void) {
     task_save(task_3);
 
     char* contents = file_to_str(TEST_DB);
-    char*** rows = tsv_split(contents);
+    tsv_table_t table = tsv_parse(contents);
+    ASSERT_TRUE(table.rows >= 2);
 
     time_t curr_time = time(NULL);
 
-    // TODO: Expand on this and do error checking for the full 2D array before all asserts.
-    // NOTE: Keep pattern here for now and expand on it later.
-    ASSERT_TRUE(rows != NULL);
-    ASSERT_TRUE(rows[1] != NULL);
-    ASSERT_TRUE(rows[2] != NULL);
-    ASSERT_TRUE(rows[1][0] != NULL);
+    char* task_1_id = table.data[0][0];
+    char* task_1_desc = table.data[0][1];
+    char* task_1_timer_days = table.data[0][2];
+    char* task_1_is_done = table.data[0][3];
+    time_t task_1_updated_at = (time_t) strtoll(table.data[0][4], NULL, 10);
 
-    char* task_1_id = rows[0][0];
-    char* task_1_desc = rows[0][1];
-    char* task_1_timer_days = rows[0][2];
-    char* task_1_is_done = rows[0][3];
-    time_t task_1_updated_at = (time_t) strtoll(rows[0][4], NULL, 10);
+    char* task_2_id = table.data[1][0];
+    char* task_2_desc = table.data[1][1];
+    char* task_2_timer_days = table.data[1][2];
+    char* task_2_is_done = table.data[1][3];
+    time_t task_2_updated_at = (time_t) strtoll(table.data[1][4], NULL, 10);
 
-    char* task_2_id = rows[1][0];
-    char* task_2_desc = rows[1][1];
-    char* task_2_timer_days = rows[1][2];
-    char* task_2_is_done = rows[1][3];
-    time_t task_2_updated_at = (time_t) strtoll(rows[1][4], NULL, 10);
-
-    char* task_3_id = rows[2][0];
-    char* task_3_desc = rows[2][1];
-    char* task_3_timer_days = rows[2][2];
-    char* task_3_is_done = rows[2][3];
-    time_t task_3_updated_at = (time_t) strtoll(rows[2][4], NULL, 10);
+    char* task_3_id = table.data[2][0];
+    char* task_3_desc = table.data[2][1];
+    char* task_3_timer_days = table.data[2][2];
+    char* task_3_is_done = table.data[2][3];
+    time_t task_3_updated_at = (time_t) strtoll(table.data[2][4], NULL, 10);
 
     ASSERT_TRUE(strcmp(task_1_id, "1") == 0);
     ASSERT_TRUE(strcmp(task_1_desc, "test-desc-1") == 0);
@@ -83,60 +77,57 @@ static void task_save_Success(void) {
     //      after each or all test executions.
     // NOTE: Do that later. Strick w/ getting first test working w/ field parsers, etc.
     // TODO: Should rm DB also before the start of every test that uses it.
-    tsv_free(rows);
+    tsv_free(&table);
     free(contents);
-    if (remove(TEST_DB) != 0) {
-        perror("remove");
-    }
-    //remove(TEST_DB);
+    remove(TEST_DB);
 }
 
-/* 2D Array of Strings:
-char*** table
-   |
-   +--> char** row 0
-   |       |
-   |       +--> char* "1"
-   |       +--> char* "test-desc-1"
-   |
-   +--> char** row 1
-           |
-           +--> char* "2"
-*/
-static char*** tsv_split(const char* text) {
+static tsv_table_t tsv_parse(const char* text) {
+    ASSERT_TRUE(text != NULL);
+
+    tsv_table_t table = {0};
+
     char* copy = strdup(text);
     ASSERT_TRUE(copy != NULL);
 
-    // Count rows
-    size_t rows = 0;
+    /* ---------------- Count rows ---------------- */
+    size_t row_count = 0;
     for (const char* p = text; *p; p++) {
-        if (*p == '\n') rows++;
+        if (*p == '\n') row_count++;
     }
-    rows++; // last line
+    row_count++; // last line
 
-    char*** table = calloc(rows + 1, sizeof(char**));
-    ASSERT_TRUE(table != NULL);
+    table.rows = row_count;
+    table.data = calloc(row_count, sizeof(char**));
+    ASSERT_TRUE(table.data != NULL);
 
+    /* ---------------- Split lines ---------------- */
     size_t r = 0;
     char* save_line = NULL;
     char* line = strtok_r(copy, "\n", &save_line);
 
-    while (line) {
-        // Count columns
-        size_t cols = 1;
+    while (line && r < row_count) {
+
+        /* Count columns in this row */
+        size_t col_count = 1;
         for (char* p = line; *p; p++) {
-            if (*p == '\t') cols++;
+            if (*p == '\t') col_count++;
         }
 
-        table[r] = calloc(cols + 1, sizeof(char*));
-        ASSERT_TRUE(table[r] != NULL);
+        if (col_count > table.cols) {
+            table.cols = col_count; // track max columns
+        }
 
+        table.data[r] = calloc(col_count, sizeof(char*));
+        ASSERT_TRUE(table.data[r] != NULL);
+
+        /* Split fields */
         size_t c = 0;
         char* save_field = NULL;
         char* field = strtok_r(line, "\t", &save_field);
 
-        while (field) {
-            table[r][c++] = strdup(field);
+        while (field && c < col_count) {
+            table.data[r][c++] = strdup(field);
             field = strtok_r(NULL, "\t", &save_field);
         }
 
@@ -148,14 +139,23 @@ static char*** tsv_split(const char* text) {
     return table;
 }
 
-static void tsv_free(char*** table) {
-    for (size_t r = 0; table[r]; r++) {
-        for (size_t c = 0; table[r][c]; c++) {
-            free(table[r][c]);
+static void tsv_free(tsv_table_t* table) {
+    ASSERT_TRUE(table != NULL);
+
+    for (size_t r = 0; r < table->rows; r++) {
+        if (!table->data[r]) continue;
+
+        for (size_t c = 0; table->data[r][c]; c++) {
+            free(table->data[r][c]);
         }
-        free(table[r]);
+        free(table->data[r]);
     }
-    free(table);
+
+    free(table->data);
+
+    table->data = NULL;
+    table->rows = 0;
+    table->cols = 0;
 }
 
 // TODO: Consider moving all util methods into a single header file.
