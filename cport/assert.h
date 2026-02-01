@@ -8,9 +8,13 @@
 
 #define ASSERT_TRUE(cond) do { \
     if (!(cond)) { \
-        fprintf(stderr, "ASSERT FAILED: %s (%s:%d)\n", \
-                #cond, __FILE__, __LINE__); \
-        exit(EXIT_FAILURE); \
+        fprintf(stderr, \
+            "\nASSERT FAILED:\n" \
+            "  Condition: %s\n" \
+            "  Location : %s:%d\n\n", \
+            #cond, __FILE__, __LINE__); \
+        fflush(stderr); \
+        abort(); \
     } \
 } while (0)
 

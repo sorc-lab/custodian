@@ -7,18 +7,15 @@
 #define TEST_DB "test_tasks.tsv"
 #define TIME_TOLERANCE 2
 
-static void task_save_Success(void);
-static tsv_table_t tsv_parse(const char* text);
-static void tsv_free(tsv_table_t* table);
-static char* file_to_str(const char* path);
-
 // TODO: Rename to run_all or something.
-void test_task_repo_all() {
+void test_task_repo_all(void) {
+    remove(TEST_DB);
     task_save_Success();
 }
 
+
 // TODO: See if it makes sense to move whatever timestamp assert funcs into assert.h lib funcs.
-static void task_save_Success(void) {
+int task_save_Success(void) {
     task_t* task_1 = task_init("test-desc-1", 7);
     task_t* task_2 = task_init("test-desc-2", 14);
     task_t* task_3 = task_init("test-desc-3", 30);
@@ -28,7 +25,11 @@ static void task_save_Success(void) {
 
     char* contents = file_to_str(TEST_DB);
     tsv_table_t table = tsv_parse(contents);
-    ASSERT_TRUE(table.rows >= 2);
+
+    ASSERT_TRUE(table.rows >= 3);
+    ASSERT_TRUE(table.data[0] != NULL);
+    ASSERT_TRUE(table.data[1] != NULL);
+    ASSERT_TRUE(table.data[2] != NULL);
 
     time_t curr_time = time(NULL);
 
@@ -80,9 +81,13 @@ static void task_save_Success(void) {
     tsv_free(&table);
     free(contents);
     remove(TEST_DB);
+    printf("DONE\n");
+    fflush(stdout);
+
+    return 0;
 }
 
-static tsv_table_t tsv_parse(const char* text) {
+tsv_table_t tsv_parse(const char* text) {
     ASSERT_TRUE(text != NULL);
 
     tsv_table_t table = {0};
@@ -90,38 +95,32 @@ static tsv_table_t tsv_parse(const char* text) {
     char* copy = strdup(text);
     ASSERT_TRUE(copy != NULL);
 
-    /* ---------------- Count rows ---------------- */
-    size_t row_count = 0;
+    /* Count rows */
     for (const char* p = text; *p; p++) {
-        if (*p == '\n') row_count++;
+        if (*p == '\n') table.rows++;
     }
-    row_count++; // last line
+    table.rows++;
 
-    table.rows = row_count;
-    table.data = calloc(row_count, sizeof(char**));
+    table.data = calloc(table.rows, sizeof(char**));
+    table.cols = calloc(table.rows, sizeof(size_t));
     ASSERT_TRUE(table.data != NULL);
+    ASSERT_TRUE(table.cols != NULL);
 
-    /* ---------------- Split lines ---------------- */
     size_t r = 0;
     char* save_line = NULL;
     char* line = strtok_r(copy, "\n", &save_line);
 
-    while (line && r < row_count) {
+    while (line && r < table.rows) {
 
-        /* Count columns in this row */
         size_t col_count = 1;
         for (char* p = line; *p; p++) {
             if (*p == '\t') col_count++;
         }
 
-        if (col_count > table.cols) {
-            table.cols = col_count; // track max columns
-        }
-
+        table.cols[r] = col_count;
         table.data[r] = calloc(col_count, sizeof(char*));
         ASSERT_TRUE(table.data[r] != NULL);
 
-        /* Split fields */
         size_t c = 0;
         char* save_field = NULL;
         char* field = strtok_r(line, "\t", &save_field);
@@ -139,27 +138,26 @@ static tsv_table_t tsv_parse(const char* text) {
     return table;
 }
 
-static void tsv_free(tsv_table_t* table) {
-    ASSERT_TRUE(table != NULL);
+void tsv_free(tsv_table_t* table) {
+    if (!table || !table->data) return;
 
     for (size_t r = 0; r < table->rows; r++) {
-        if (!table->data[r]) continue;
-
-        for (size_t c = 0; table->data[r][c]; c++) {
+        for (size_t c = 0; c < table->cols[r]; c++) {
             free(table->data[r][c]);
         }
         free(table->data[r]);
     }
 
     free(table->data);
+    free(table->cols);
 
     table->data = NULL;
+    table->cols = NULL;
     table->rows = 0;
-    table->cols = 0;
 }
 
 // TODO: Consider moving all util methods into a single header file.
-static char* file_to_str(const char* path) {
+char* file_to_str(const char* path) {
     FILE* fp = fopen(path, "r");
     ASSERT_TRUE(fp != NULL);
 

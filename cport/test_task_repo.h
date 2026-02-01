@@ -17,10 +17,18 @@ char*** data
 */
 typedef struct {
     size_t rows;
-    size_t cols;      // max columns in any row (optional but useful)
-    char*** data;     // data[row][col]
+    size_t* cols; // cols[r] = number of columns in row r
+    char*** data; // data[row][col]
 } tsv_table_t;
 
-void test_task_repo_all();
+tsv_table_t tsv_parse(const char* text);
+void tsv_free(tsv_table_t* table);
+
+void test_task_repo_all(void);
+
+int task_save_Success(void);
+char* file_to_str(const char* path);
+void tsv_free(tsv_table_t* table);
+tsv_table_t tsv_parse(const char* text);
 
 #endif
