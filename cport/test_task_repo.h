@@ -21,14 +21,7 @@ typedef struct {
     char*** data; // data[row][col]
 } tsv_table_t;
 
-tsv_table_t tsv_parse(const char* text);
-void tsv_free(tsv_table_t* table);
-
-void test_task_repo_all(void);
-
+void test_task_repo_run(void);
 int task_save_Success(void);
-char* file_to_str(const char* path);
-void tsv_free(tsv_table_t* table);
-tsv_table_t tsv_parse(const char* text);
 
 #endif

@@ -7,14 +7,15 @@
 #define TEST_DB "test_tasks.tsv"
 #define TIME_TOLERANCE 2
 
-// TODO: Rename to run_all or something.
-void test_task_repo_all(void) {
+static char* file_to_str(const char* path);
+static tsv_table_t tsv_parse(const char* text);
+static void tsv_free(tsv_table_t* table);
+
+void test_task_repo_run(void) {
     remove(TEST_DB);
     task_save_Success();
 }
 
-
-// TODO: See if it makes sense to move whatever timestamp assert funcs into assert.h lib funcs.
 int task_save_Success(void) {
     task_t* task_1 = task_init("test-desc-1", 7);
     task_t* task_2 = task_init("test-desc-2", 14);
@@ -69,25 +70,34 @@ int task_save_Success(void) {
     ASSERT_TRUE(strcmp(task_3_is_done, "false") == 0);
     ASSERT_TRUE(llabs(curr_time - task_3_updated_at) <= TIME_TOLERANCE);
 
-    // TODO: Failed silently again. Did not print here and did not clear the DB file.
-    // TODO: Have test funcs return an integer and check if succcess to print pass/fail msgs.
-    printf("[SUCCESS] task_save_Success\n");
-
-    // TODO: Assertion failures result in a failure to cleanup. Need better control flow.
-    // NOTE: Need to store globals, like rows and file contents to be freed via private method
-    //      after each or all test executions.
-    // NOTE: Do that later. Strick w/ getting first test working w/ field parsers, etc.
-    // TODO: Should rm DB also before the start of every test that uses it.
     tsv_free(&table);
     free(contents);
     remove(TEST_DB);
-    printf("DONE\n");
     fflush(stdout);
 
+    printf("[SUCCESS] task_save_Success\n");
     return 0;
 }
 
-tsv_table_t tsv_parse(const char* text) {
+static char* file_to_str(const char* path) {
+    FILE* fp = fopen(path, "r");
+    ASSERT_TRUE(fp != NULL);
+
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    rewind(fp);
+
+    char* buf = malloc(size + 1);
+    ASSERT_TRUE(buf != NULL);
+
+    fread(buf, 1, size, fp);
+    buf[size] = '\0';
+
+    fclose(fp);
+    return buf;
+}
+
+static tsv_table_t tsv_parse(const char* text) {
     ASSERT_TRUE(text != NULL);
 
     tsv_table_t table = {0};
@@ -95,7 +105,7 @@ tsv_table_t tsv_parse(const char* text) {
     char* copy = strdup(text);
     ASSERT_TRUE(copy != NULL);
 
-    /* Count rows */
+    // count rows
     for (const char* p = text; *p; p++) {
         if (*p == '\n') table.rows++;
     }
@@ -138,7 +148,7 @@ tsv_table_t tsv_parse(const char* text) {
     return table;
 }
 
-void tsv_free(tsv_table_t* table) {
+static void tsv_free(tsv_table_t* table) {
     if (!table || !table->data) return;
 
     for (size_t r = 0; r < table->rows; r++) {
@@ -154,23 +164,4 @@ void tsv_free(tsv_table_t* table) {
     table->data = NULL;
     table->cols = NULL;
     table->rows = 0;
-}
-
-// TODO: Consider moving all util methods into a single header file.
-char* file_to_str(const char* path) {
-    FILE* fp = fopen(path, "r");
-    ASSERT_TRUE(fp != NULL);
-
-    fseek(fp, 0, SEEK_END);
-    long size = ftell(fp);
-    rewind(fp);
-
-    char* buf = malloc(size + 1);
-    ASSERT_TRUE(buf != NULL);
-
-    fread(buf, 1, size, fp);
-    buf[size] = '\0';
-
-    fclose(fp);
-    return buf;
 }

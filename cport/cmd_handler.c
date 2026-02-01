@@ -105,5 +105,5 @@ void cmd_help(int argc, char* argv[]) {
 void cmd_test(int argc, char* argv[]) {
     (void) argc;
     (void) argv;
-    test_task_repo_all();
+    test_task_repo_run();
 }
