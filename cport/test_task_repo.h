@@ -22,6 +22,5 @@ typedef struct {
 } tsv_table_t;
 
 void test_task_repo_run(void);
-int task_save_Success(void);
 
 #endif

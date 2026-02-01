@@ -7,6 +7,10 @@
 #define TEST_DB "test_tasks.tsv"
 #define TIME_TOLERANCE 2
 
+static int task_save_Success(void);
+static int task_delete_by_id_Success(void);
+static int task_set_is_done_Success(void);
+
 static char* file_to_str(const char* path);
 static tsv_table_t tsv_parse(const char* text);
 static void tsv_free(tsv_table_t* table);
@@ -14,9 +18,15 @@ static void tsv_free(tsv_table_t* table);
 void test_task_repo_run(void) {
     remove(TEST_DB);
     task_save_Success();
+
+    remove(TEST_DB);
+    task_delete_by_id_Success();
+
+    remove(TEST_DB);
+    task_set_is_done_Success();
 }
 
-int task_save_Success(void) {
+static int task_save_Success(void) {
     task_t* task_1 = task_init("test-desc-1", 7);
     task_t* task_2 = task_init("test-desc-2", 14);
     task_t* task_3 = task_init("test-desc-3", 30);
@@ -27,7 +37,7 @@ int task_save_Success(void) {
     char* contents = file_to_str(TEST_DB);
     tsv_table_t table = tsv_parse(contents);
 
-    ASSERT_TRUE(table.rows >= 3);
+    ASSERT_TRUE(table.rows == 4);
     ASSERT_TRUE(table.data[0] != NULL);
     ASSERT_TRUE(table.data[1] != NULL);
     ASSERT_TRUE(table.data[2] != NULL);
@@ -76,6 +86,64 @@ int task_save_Success(void) {
     fflush(stdout);
 
     printf("[SUCCESS] task_save_Success\n");
+    return 0;
+}
+
+static int task_delete_by_id_Success(void) {
+    task_t* task_1 = task_init("test-desc-1", 7);
+    task_t* task_2 = task_init("test-desc-2", 14);
+    task_save(task_1);
+    task_save(task_2);
+    task_delete_by_id(1);
+
+    char* contents = file_to_str(TEST_DB);
+    tsv_table_t table = tsv_parse(contents);
+
+    ASSERT_TRUE(table.rows == 2);
+    ASSERT_TRUE(table.data[0] != NULL);
+
+    char* task_id = table.data[0][0];
+    char* task_desc = table.data[0][1];
+    char* task_timer_days = table.data[0][2];
+    char* task_is_done = table.data[0][3];
+    time_t task_updated_at = (time_t) strtoll(table.data[0][4], NULL, 10);
+    time_t curr_time = time(NULL);
+
+    ASSERT_TRUE(strcmp(task_id, "2") == 0);
+    ASSERT_TRUE(strcmp(task_desc, "test-desc-2") == 0);
+    ASSERT_TRUE(strcmp(task_timer_days, "14") == 0);
+    ASSERT_TRUE(strcmp(task_is_done, "false") == 0);
+    ASSERT_TRUE(llabs(curr_time - task_updated_at) <= TIME_TOLERANCE);
+
+    tsv_free(&table);
+    free(contents);
+    remove(TEST_DB);
+    fflush(stdout);
+
+    printf("[SUCCESS] task_delete_by_id_Success\n");
+    return 0;
+}
+
+static int task_set_is_done_Success(void) {
+    task_t* task = task_init("test-desc", 7);
+    task_save(task);
+    task_set_is_done(1);
+
+    char* contents = file_to_str(TEST_DB);
+    tsv_table_t table = tsv_parse(contents);
+
+    ASSERT_TRUE(table.rows == 2);
+    ASSERT_TRUE(table.data[0] != NULL);
+
+    char* task_is_done = table.data[0][3];
+    ASSERT_TRUE(strcmp(task_is_done, "true") == 0);
+
+    tsv_free(&table);
+    free(contents);
+    remove(TEST_DB);
+    fflush(stdout);
+
+    printf("[SUCCESS] task_set_is_done_Success\n");
     return 0;
 }
 
