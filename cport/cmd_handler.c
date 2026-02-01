@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "task_repo.h"
 #include <string.h>
+#include "test_task_repo.h"
 
 cmd_t cli_commands[] = {
     {"add", "add <description> <days>", cmd_add},
@@ -10,6 +11,7 @@ cmd_t cli_commands[] = {
     {"done", "done <id>", cmd_done},
     {"ls", "ls", cmd_ls},
     {"help", "help", cmd_help},
+    {"test", "test", cmd_test},
     {NULL, NULL, NULL}
 };
 
@@ -33,7 +35,7 @@ void cmd_handler(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
 }
 
-static void cmd_add(int argc, char* argv[]) {
+void cmd_add(int argc, char* argv[]) {
     if (argc < 3) {
         fprintf(stderr, "Usage: add <description> <days>\n");
         exit(EXIT_FAILURE);
@@ -41,7 +43,7 @@ static void cmd_add(int argc, char* argv[]) {
     task_save(task_init(argv[1], atoi(argv[2])));
 }
 
-static void cmd_rm(int argc, char* argv[]) {
+void cmd_rm(int argc, char* argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Usage: rm <id>\n");
         exit(EXIT_FAILURE);
@@ -49,7 +51,7 @@ static void cmd_rm(int argc, char* argv[]) {
     task_delete_by_id(atoi(argv[1]));
 }
 
-static void cmd_done(int argc, char* argv[]) {
+void cmd_done(int argc, char* argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Usage: done <id>\n");
         exit(EXIT_FAILURE);
@@ -57,13 +59,15 @@ static void cmd_done(int argc, char* argv[]) {
     task_set_is_done(atoi(argv[1]));
 }
 
-static void cmd_ls(int argc, char* argv[]) {
+void cmd_ls(int argc, char* argv[]) {
+    (void) argc;
+    (void) argv;
     printf("ls not implemented yet\n");
 }
 
-static void cmd_help(int argc, char* argv[]) {
-    (void)argc;
-    (void)argv;
+void cmd_help(int argc, char* argv[]) {
+    (void) argc;
+    (void) argv;
 
     printf(
         "custodian - task management CLI\n\n"
@@ -81,15 +85,25 @@ static void cmd_help(int argc, char* argv[]) {
         "        List all tasks.\n\n"
         "    view <id>\n"
         "        Display full details for a specific task.\n\n"
+        "    test\n"
+        "        Run full test suite to verify application integrity.\n\n"
         "EXAMPLES\n"
         "    custodian add \"Wipe kitchen floors\" 7\n"
         "    custodian ls\n"
         "    custodian view 3\n"
         "    custodian done 3\n"
-        "    custodian rm 3\n\n"
+        "    custodian rm 3\n"
+        "    custodian test\n\n"
         "EXIT STATUS\n"
         "    0   Success\n"
         "    1   General error\n"
         "    2   Invalid usage\n"
     );
+}
+
+// TODO: Remove args, unless "interface" requires it.
+void cmd_test(int argc, char* argv[]) {
+    (void) argc;
+    (void) argv;
+    test_task_repo_run();
 }

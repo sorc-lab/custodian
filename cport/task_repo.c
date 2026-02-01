@@ -3,10 +3,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 
-#define DB "tasks.tsv"
-#define TMP_DB "tasks.tmp"
+bool test_mode = false;
+
+#define DB (test_mode ? "test_tasks.tsv" : "tasks.tsv")
+#define TMP_DB (test_mode ? "test_tasks.tmp" : "tasks.tmp")
+
 #define MAX_LINE_SIZE 1024
+
+// TODO: Once ALL static methods here are removed from .h, remove the 'task_' prepended labels from
+//      all the "private methods". Only the public API methods need that.
+static FILE* task_db_appender();
+static long task_gen_seq_id();
+static FILE* task_db_reader();
+static FILE* task_tmp_db_writer(FILE* db_reader);
+static void task_close_db_access(FILE* db_reader, FILE* tmp_db_writer, bool has_task_match, long task_id);
+static task_t* task_find_by_id(long target_id);
+static void task_update(task_t* task);
+//static void timestamp(time_t epoch_time);
 
 void task_save(task_t* task) {
     if (!task) return;
@@ -90,6 +105,8 @@ static FILE* task_db_reader() {
     return reader;
 }
 
+// TODO: VERY subtle bug here. We are returning garbage here. The centralized task_close_db_access
+//      gets a garbage pointer and does not actually close the file. Need a return statement here.
 // requires db_reader as it should handle closing its file pointer access upon fail to open tmp_db
 static FILE* task_tmp_db_writer(FILE* db_reader) {
     FILE* writer = fopen(TMP_DB, "w");
@@ -98,6 +115,7 @@ static FILE* task_tmp_db_writer(FILE* db_reader) {
         fprintf(stderr, "Failed to open TEMP Task database for write.\n");
         exit(EXIT_FAILURE);
     }
+    return writer;
 }
 
 static void task_close_db_access(FILE* db_reader, FILE* tmp_db_writer, bool has_task_match, long task_id) {
@@ -168,7 +186,7 @@ static void task_update(task_t* task) {
         long id = 0;
         if (sscanf(line, "%ld", &id) == 1 && id == task->id) {
             found = true;
-            fprintf(tmp_db_writer, "%ld\t%s\t%d\t%s\t%ld\n",
+            fprintf(tmp_db_writer, "%ld\t%s\t%d\t%s\t%lld\n",
                 task->id,
                 task->desc,
                 task->timer_days,
@@ -184,9 +202,9 @@ static void task_update(task_t* task) {
 }
 
 // TODO: Move out of task_repo.c. For display use only! Return str vs. void method.
-static void timestamp(time_t epoch_time) {
-    char buf[64];
-    struct tm* tm = localtime(&epoch_time);
-    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm);
-    printf("TIMESTAMP: %s\n", buf);
-}
+// static void timestamp(time_t epoch_time) {
+//     char buf[64];
+//     struct tm* tm = localtime(&epoch_time);
+//     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm);
+//     printf("TIMESTAMP: %s\n", buf);
+// }
